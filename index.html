@@ -1014,15 +1014,37 @@
     margin-left: 6px;
   }
 
-  /* Work photo collection */
+  /* Work photo slider */
   .work-photo-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 18px;
+    display: none;
+  }
+
+  .work-photo-slider {
+    position: relative;
     margin-top: 22px;
   }
 
+  .work-photo-viewport {
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+  }
+
+  .work-photo-track {
+    display: flex;
+    gap: 18px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+  }
+
+  .work-photo-track::-webkit-scrollbar {
+    display: none;
+  }
+
   .work-photo-card {
+    flex: 0 0 100%;
+    scroll-snap-align: start;
     margin: 0;
     background: var(--bg-card);
     border: 1px solid var(--border-soft);
@@ -1033,7 +1055,7 @@
 
   .work-photo-frame {
     position: relative;
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 16 / 9;
     background:
       linear-gradient(135deg, rgba(14, 165, 233, 0.08), rgba(217, 119, 6, 0.08)),
       var(--bg-soft);
@@ -1062,8 +1084,8 @@
   }
 
   .work-photo-caption {
-    padding: 12px 14px 14px;
-    font-size: 12.5px;
+    padding: 14px 18px 16px;
+    font-size: 13px;
     line-height: 1.45;
     color: var(--text-secondary);
   }
@@ -1074,6 +1096,64 @@
     font-family: var(--font-display);
     font-size: 13.5px;
     color: var(--text-primary);
+  }
+
+  .work-photo-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-top: 14px;
+  }
+
+  .work-photo-btn {
+    width: 38px;
+    height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .work-photo-btn:hover {
+    color: var(--sky);
+    border-color: var(--sky);
+    transform: translateY(-1px);
+  }
+
+  .work-photo-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .work-photo-dots {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex: 1;
+  }
+
+  .work-photo-dot {
+    width: 8px;
+    height: 8px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--border);
+    cursor: pointer;
+    padding: 0;
+    transition: all 0.15s;
+  }
+
+  .work-photo-dot.active {
+    width: 24px;
+    border-radius: 99px;
+    background: var(--primary);
   }
 
   /* ============================================================
@@ -1513,7 +1593,7 @@
     .cover-stat-value { font-size: 18px; }
     .grid-2 { grid-template-columns: 1fr; }
     .grid-3 { grid-template-columns: 1fr; }
-    .work-photo-grid { grid-template-columns: 1fr; }
+    .work-photo-nav { margin-top: 10px; }
     .unit-grid { grid-template-columns: 1fr; }
     .param-grid { grid-template-columns: 1fr; }
     .readout-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -2220,10 +2300,76 @@
             Một số hình ảnh ghi nhận trong quá trình kiểm tra, thao tác và xử lý sự cố.
           </p>
 
+          <div class="work-photo-slider" data-work-photo-slider aria-label="Bộ sưu tập hình ảnh công tác">
+            <div class="work-photo-viewport">
+              <div class="work-photo-track" data-work-photo-track>
+                <figure class="work-photo-card">
+                  <div class="work-photo-frame">
+                    <img src="images/cong-tac/Hình ảnh cụm van.jpg" alt="Hình ảnh cụm van" loading="lazy">
+                  </div>
+                  <figcaption class="work-photo-caption">
+                    <strong>Hình ảnh cụm van</strong>
+                    Hình ảnh cụm van.
+                  </figcaption>
+                </figure>
+
+                <figure class="work-photo-card">
+                  <div class="work-photo-frame">
+                    <img src="images/cong-tac/kiem tra hoạt dong cac van.jpg" alt="Kiểm tra hoạt động các van" loading="lazy">
+                  </div>
+                  <figcaption class="work-photo-caption">
+                    <strong>Kiểm tra hoạt động các van</strong>
+                    Kiểm tra hoạt động các van.
+                  </figcaption>
+                </figure>
+
+                <figure class="work-photo-card">
+                  <div class="work-photo-frame">
+                    <img src="images/cong-tac/cơ cấu tác động.jpg" alt="Cơ cấu tác động" loading="lazy">
+                  </div>
+                  <figcaption class="work-photo-caption">
+                    <strong>Cơ cấu tác động</strong>
+                    Cơ cấu tác động.
+                  </figcaption>
+                </figure>
+
+                <figure class="work-photo-card">
+                  <div class="work-photo-frame">
+                    <img src="images/cong-tac/Test record Shutoff valve Main.jpg" alt="Test record Shutoff valve Main" loading="lazy">
+                  </div>
+                  <figcaption class="work-photo-caption">
+                    <strong>Test record Shutoff valve Main</strong>
+                    Test record Shutoff valve Main.
+                  </figcaption>
+                </figure>
+
+                <figure class="work-photo-card">
+                  <div class="work-photo-frame">
+                    <img src="images/cong-tac/Test record Shutoff valve Backup.jpg" alt="Test record Shutoff valve Backup" loading="lazy">
+                  </div>
+                  <figcaption class="work-photo-caption">
+                    <strong>Test record Shutoff valve Backup</strong>
+                    Test record Shutoff valve Backup.
+                  </figcaption>
+                </figure>
+              </div>
+            </div>
+
+            <div class="work-photo-nav" aria-label="Điều hướng hình ảnh công tác">
+              <button class="work-photo-btn" type="button" data-work-photo-prev aria-label="Ảnh trước">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+              </button>
+              <div class="work-photo-dots" data-work-photo-dots aria-label="Chọn ảnh"></div>
+              <button class="work-photo-btn" type="button" data-work-photo-next aria-label="Ảnh tiếp theo">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+              </button>
+            </div>
+          </div>
+
           <div class="work-photo-grid" aria-label="Bộ sưu tập hình ảnh công tác">
             <figure class="work-photo-card">
               <div class="work-photo-frame">
-                <!-- Thay placeholder bằng: <img src="images/cong-tac/ten-anh-01.jpg" alt="Mô tả ảnh 01"> -->
+                <!-- Placeholder cũ, không hiển thị -->
                 <div class="work-photo-placeholder">Ảnh 01</div>
               </div>
               <figcaption class="work-photo-caption">
@@ -2234,7 +2380,7 @@
 
             <figure class="work-photo-card">
               <div class="work-photo-frame">
-                <!-- Thay placeholder bằng: <img src="images/cong-tac/ten-anh-02.jpg" alt="Mô tả ảnh 02"> -->
+                <!-- Placeholder cũ, không hiển thị -->
                 <div class="work-photo-placeholder">Ảnh 02</div>
               </div>
               <figcaption class="work-photo-caption">
@@ -2245,7 +2391,7 @@
 
             <figure class="work-photo-card">
               <div class="work-photo-frame">
-                <!-- Thay placeholder bằng: <img src="images/cong-tac/ten-anh-03.jpg" alt="Mô tả ảnh 03"> -->
+                <!-- Placeholder cũ, không hiển thị -->
                 <div class="work-photo-placeholder">Ảnh 03</div>
               </div>
               <figcaption class="work-photo-caption">
@@ -2256,7 +2402,7 @@
 
             <figure class="work-photo-card">
               <div class="work-photo-frame">
-                <!-- Thay placeholder bằng: <img src="images/cong-tac/ten-anh-04.jpg" alt="Mô tả ảnh 04"> -->
+                <!-- Placeholder cũ, không hiển thị -->
                 <div class="work-photo-placeholder">Ảnh 04</div>
               </div>
               <figcaption class="work-photo-caption">
@@ -2267,7 +2413,7 @@
 
             <figure class="work-photo-card">
               <div class="work-photo-frame">
-                <!-- Thay placeholder bằng: <img src="images/cong-tac/ten-anh-05.jpg" alt="Mô tả ảnh 05"> -->
+                <!-- Placeholder cũ, không hiển thị -->
                 <div class="work-photo-placeholder">Ảnh 05</div>
               </div>
               <figcaption class="work-photo-caption">
@@ -2278,7 +2424,7 @@
 
             <figure class="work-photo-card">
               <div class="work-photo-frame">
-                <!-- Thay placeholder bằng: <img src="images/cong-tac/ten-anh-06.jpg" alt="Mô tả ảnh 06"> -->
+                <!-- Placeholder cũ, không hiển thị -->
                 <div class="work-photo-placeholder">Ảnh 06</div>
               </div>
               <figcaption class="work-photo-caption">
@@ -2634,8 +2780,8 @@
     // Scroll nav into view
     navItems[currentIndex].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
 
-    // Reset chart when entering slide 8 (chart slide, index 7)
-    if (currentIndex === 7) {
+    // Reset chart when entering slide 9 (chart slide, index 8)
+    if (currentIndex === 8) {
       resetChart();
     } else {
       pauseChart();
@@ -2663,6 +2809,47 @@
       e.preventDefault();
       goTo(slides.length - 1);
     }
+  });
+
+  /* ================================================================
+     WORK PHOTO SLIDER
+     ================================================================ */
+  document.querySelectorAll('[data-work-photo-slider]').forEach((slider) => {
+    const track = slider.querySelector('[data-work-photo-track]');
+    const cards = Array.from(track.querySelectorAll('.work-photo-card'));
+    const prev = slider.querySelector('[data-work-photo-prev]');
+    const next = slider.querySelector('[data-work-photo-next]');
+    const dotsWrap = slider.querySelector('[data-work-photo-dots]');
+    let photoIndex = 0;
+
+    const dots = cards.map((_, index) => {
+      const dot = document.createElement('button');
+      dot.type = 'button';
+      dot.className = 'work-photo-dot' + (index === 0 ? ' active' : '');
+      dot.setAttribute('aria-label', `Xem ảnh ${index + 1}`);
+      dot.addEventListener('click', () => goToPhoto(index));
+      dotsWrap.appendChild(dot);
+      return dot;
+    });
+
+    function updatePhotoState(index) {
+      photoIndex = Math.max(0, Math.min(index, cards.length - 1));
+      dots.forEach((dot, i) => dot.classList.toggle('active', i === photoIndex));
+    }
+
+    function goToPhoto(index) {
+      updatePhotoState(index);
+      cards[photoIndex].scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+    }
+
+    prev.addEventListener('click', () => goToPhoto(photoIndex === 0 ? cards.length - 1 : photoIndex - 1));
+    next.addEventListener('click', () => goToPhoto(photoIndex === cards.length - 1 ? 0 : photoIndex + 1));
+
+    track.addEventListener('scroll', () => {
+      const step = (cards[0]?.offsetWidth || track.clientWidth || 1) + 18;
+      const nextIndex = Math.round(track.scrollLeft / step);
+      if (nextIndex !== photoIndex) updatePhotoState(nextIndex);
+    }, { passive: true });
   });
 
   /* ================================================================
