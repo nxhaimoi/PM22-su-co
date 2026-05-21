@@ -2161,7 +2161,7 @@
           <div class="card">
             <div class="timeline">
               <div class="timeline-item">
-                <div class="timeline-time">14:01</div>
+                <div class="timeline-time">14:02</div>
                 <div class="timeline-event">
                   Ca vận hành thực hiện <strong>giảm tải GT1/GT2 về 230/230 MW</strong> theo lệnh điều độ.
                 </div>
@@ -2175,7 +2175,7 @@
                 </div>
               </div>
               <div class="timeline-item danger">
-                <div class="timeline-time">14:05</div>
+                <div class="timeline-time">14:05:10</div>
                 <div class="timeline-event">
                   DCS cảnh báo: <code style="font-family: var(--font-mono); font-size: 12px; background: var(--coral-soft); color: var(--coral); padding: 1px 6px; border-radius: 4px;">Safety Valve 1 HP Line 1 close</code>,
                   <code style="font-family: var(--font-mono); font-size: 12px; background: var(--coral-soft); color: var(--coral); padding: 1px 6px; border-radius: 4px;">Press down HP reduction</code>,
@@ -2458,7 +2458,7 @@
               <div class="step-body">
                 <div class="step-title">Lệnh giảm tải gây tăng áp</div>
                 <div class="step-desc">
-                  Lúc <code>14:01</code>, ca vận hành giảm tải theo lệnh điều độ. Khi các tổ máy
+                  Lúc <code>14:02</code>, ca vận hành giảm tải theo lệnh điều độ. Khi các tổ máy
                   giảm công suất, lưu lượng tiêu thụ Khí giảm xuống nên
                   <span class="hl">áp suất Khí cấp sau van điều áp tăng lên</span>.
                 </div>
@@ -2529,7 +2529,7 @@
           <h2 class="slide-title">Diễn biến áp suất Gas — <span class="em">mô phỏng động</span></h2>
           <p class="slide-subtitle">
             Mô phỏng diễn biến áp suất Khí Gas sau van điều áp HP từ thời điểm bắt đầu giảm tải
-            (14:01) đến khi cả hai van Safety Shut Off đóng và tổ máy mất nhiên liệu (14:06).
+            (14:02) đến khi cả hai van Safety Shut Off đóng và tổ máy mất nhiên liệu (14:06).
             Bấm <strong>Bắt đầu</strong> để chạy mô phỏng.
           </p>
 
@@ -2846,6 +2846,12 @@
 
   // Chart config
   const TOTAL_SIM_SECONDS = 60;  // total simulated duration
+  const SIM_REAL_SECONDS = 5;    // 1s mô phỏng = 5s thời gian thực
+  const LOAD_REDUCTION_T = 12;   // 14:02:00
+  const LINE1_CLOSE_T = 48;      // 14:05:00
+  const BACKUP_ACTIVE_T = 49;    // Line 2 tiếp quản sau khi Line 1 đóng
+  const LINE2_CLOSE_T = 50;      // 14:05:10
+  const TRIP_T = 60;             // 14:06:00
   const PRESSURE_MIN = 15;
   const PRESSURE_MAX = 45;
   const PADDING = { top: 28, right: 160, bottom: 36, left: 60 };
@@ -2884,16 +2890,16 @@
     let l1 = 'normal';
     let l2 = 'standby';
 
-    if (t < 12) {
+    if (t < LOAD_REDUCTION_T) {
       // Phase A: stable
       // Small natural fluctuation ±0.15 bar
       p = REF.workingPressure + Math.sin(t * 1.2) * 0.12 + Math.cos(t * 2.3) * 0.06;
       l1 = 'normal';
       l2 = 'standby';
 
-    } else if (t < 25) {
-      // Phase B: gradual rise due to load reduction (14:01)
-      const phaseProgress = (t - 12) / 13; // 0..1 over 13s
+    } else if (t < LINE1_CLOSE_T) {
+      // Phase B: gradual rise due to load reduction (14:02)
+      const phaseProgress = (t - LOAD_REDUCTION_T) / (LINE1_CLOSE_T - LOAD_REDUCTION_T);
       // Easing curve — pressure rises in S-shape, accelerating then plateauing
       const eased = phaseProgress * phaseProgress * (3 - 2 * phaseProgress);
       p = REF.workingPressure + eased * (REF.line1HighActual - REF.workingPressure + 0.05)
@@ -2901,10 +2907,10 @@
       l1 = 'normal';
       l2 = 'standby';
 
-    } else if (t < 26) {
+    } else if (t < BACKUP_ACTIVE_T) {
       // Phase C: hits Line 1 actual High limit → Line 1 closes fast
       // Pressure drops sharply (within 1 second)
-      const phaseProgress = (t - 25) / 1;
+      const phaseProgress = (t - LINE1_CLOSE_T) / (BACKUP_ACTIVE_T - LINE1_CLOSE_T);
       const startP = REF.line1HighActual + 0.05;
       // Drop down toward regulator setpoint of backup (32.6) area
       const endP = 31.8;
@@ -2913,11 +2919,11 @@
       l1 = 'closed';
       l2 = 'normal';
 
-    } else if (t < 38) {
+    } else if (t < LINE2_CLOSE_T) {
       // Phase D: Line 2 backup tries to recover
       // But GT demand is high, pressure stabilizes lower then dips
       // Simulating: backup brings pressure up but it slowly leaks down
-      const phaseProgress = (t - 26) / 12;
+      const phaseProgress = (t - BACKUP_ACTIVE_T) / (LINE2_CLOSE_T - BACKUP_ACTIVE_T);
 
       // First half: brief recovery toward Line 2 setpoint (32.6)
       // Then progressive decay as demand outpaces supply recovery
@@ -2936,10 +2942,10 @@
       l1 = 'closed';
       l2 = 'normal';
 
-    } else if (t < 39.5) {
+    } else if (t < TRIP_T) {
       // Phase E: hits Line 2 actual Low limit → Line 2 closes
       // Sharp drop
-      const phaseProgress = (t - 38) / 1.5;
+      const phaseProgress = (t - LINE2_CLOSE_T) / (TRIP_T - LINE2_CLOSE_T);
       const startP = REF.line2LowActual - 0.05;
       const endP = 0;
       // Exponential decay to 0
@@ -2949,7 +2955,7 @@
 
     } else {
       // Phase F+G: zero pressure, both valves closed
-      p = 0 + Math.max(0, Math.sin(t * 5) * 0.15 - 0.1) * Math.exp(-(t - 39.5) * 0.5);
+      p = 0 + Math.max(0, Math.sin(t * 5) * 0.15 - 0.1) * Math.exp(-(t - TRIP_T) * 0.5);
       if (p < 0) p = 0;
       l1 = 'closed';
       l2 = 'closed';
@@ -2972,7 +2978,7 @@
   function formatSimTime(t) {
     const totalSec = Math.floor(t);
     const baseSec = 14 * 3600 + 1 * 60 + 0; // 14:01:00
-    const cur = baseSec + Math.floor(t * (5 * 60 / TOTAL_SIM_SECONDS));
+    const cur = baseSec + Math.floor(t * SIM_REAL_SECONDS);
     // Maps 60s of sim → 5 minutes of real wall clock (14:01 - 14:06)
     const h = Math.floor(cur / 3600) % 24;
     const m = Math.floor((cur % 3600) / 60);
@@ -3120,9 +3126,9 @@
   function drawEventMarkers(w, h) {
     // Draw vertical event markers at key moments
     const events = [
-      { t: 12, label: 'Giảm tải (14:01)', color: '#0EA5E9' },
-      { t: 25, label: 'Line 1 đóng', color: '#DC2626' },
-      { t: 38, label: 'Line 2 đóng', color: '#DC2626' }
+      { t: LOAD_REDUCTION_T, label: 'Giảm tải (14:02)', color: '#0EA5E9' },
+      { t: LINE1_CLOSE_T, label: 'Line 1 đóng (14:05)', color: '#DC2626' },
+      { t: LINE2_CLOSE_T, label: 'Line 2 đóng (14:05:10)', color: '#DC2626' }
     ];
 
     ctx.save();
@@ -3253,23 +3259,23 @@
     }
 
     // Trigger events at key thresholds
-    if (simTime >= 12 && !eventsFired.has('loadReduction')) {
+    if (simTime >= LOAD_REDUCTION_T && !eventsFired.has('loadReduction')) {
       eventsFired.add('loadReduction');
       logEvent('Lệnh giảm tải GT1/GT2 về 230/230 MW · Áp suất Khí bắt đầu tăng do nhu cầu giảm', 'warn');
     }
-    if (simTime >= 25 && !eventsFired.has('line1Close')) {
+    if (simTime >= LINE1_CLOSE_T && !eventsFired.has('line1Close')) {
       eventsFired.add('line1Close');
       logEvent('⚠ Safety Valve HP Line 1 ĐÓNG · Tác động sớm ở 33.0 bar (thiết kế 36.3) · Backup Line 2 tiếp quản', 'danger');
     }
-    if (simTime >= 26.5 && !eventsFired.has('backupActive')) {
+    if (simTime >= BACKUP_ACTIVE_T && !eventsFired.has('backupActive')) {
       eventsFired.add('backupActive');
       logEvent('Backup Line 2 vào việc, áp suất phục hồi không kịp do GT đang tải cao', 'warn');
     }
-    if (simTime >= 38 && !eventsFired.has('line2Close')) {
+    if (simTime >= LINE2_CLOSE_T && !eventsFired.has('line2Close')) {
       eventsFired.add('line2Close');
       logEvent('⚠ Safety Valve HP Line 2 ĐÓNG · Tác động sớm ở 30.8 bar (thiết kế 26.8) · Mất nguồn Khí', 'danger');
     }
-    if (simTime >= 41 && !eventsFired.has('trip')) {
+    if (simTime >= TRIP_T && !eventsFired.has('trip')) {
       eventsFired.add('trip');
       logEvent('🛑 GT1/GT2 TRIP · Bảo vệ áp suất nhiên liệu Gas thấp tác động · Máy cắt 901, 902 mở · ST3 ngừng theo liên động', 'danger');
     }
