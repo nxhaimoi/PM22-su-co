@@ -1991,7 +1991,8 @@
             Mỗi van Safety Shut Off có 02 chiều tác động (High &amp; Low). Khi áp suất vượt khỏi
             dải [Low, High], van sẽ tự động đóng và phát tín hiệu báo về DCS. Nguyên lý dự phòng:
             Line 1 (Main) ưu tiên làm việc; khi gặp sự cố, Line 2 (Backup) với setting áp suất
-            thấp hơn (32,6 bar so với 33,9 bar) sẽ tiếp quản, tạo ra "khoảng tử" áp suất an toàn.
+            thấp hơn (32,6 bar so với 33,9 bar) sẽ tiếp quản. Mặt khác, dãi setting bảo vệ của Backup
+            rộng hơn Main, đảm bảo quá trình chuyển giao được thực hiện đúng.
           </div>
         </div>
       </section>
@@ -2027,7 +2028,7 @@
               <div class="timeline-item danger">
                 <div class="timeline-time">14:05</div>
                 <div class="timeline-event">
-                  DCS cảnh báo dồn dập: <code style="font-family: var(--font-mono); font-size: 12px; background: var(--coral-soft); color: var(--coral); padding: 1px 6px; border-radius: 4px;">Safety Valve 1 HP Line 1 close</code>,
+                  DCS cảnh báo: <code style="font-family: var(--font-mono); font-size: 12px; background: var(--coral-soft); color: var(--coral); padding: 1px 6px; border-radius: 4px;">Safety Valve 1 HP Line 1 close</code>,
                   <code style="font-family: var(--font-mono); font-size: 12px; background: var(--coral-soft); color: var(--coral); padding: 1px 6px; border-radius: 4px;">Press down HP reduction</code>,
                   <code style="font-family: var(--font-mono); font-size: 12px; background: var(--coral-soft); color: var(--coral); padding: 1px 6px; border-radius: 4px;">21/22 Gas fuel supply pressure low</code>,
                   <strong>GT1/GT2: Stop/Trip from TCP</strong>.
@@ -2098,13 +2099,13 @@
                 <tr>
                   <td class="label-cell">High</td>
                   <td class="design-cell">36.3 bar</td>
-                  <td class="actual-cell">33.0 – 33.2 bar <span class="delta-pill">−3.1 bar</span></td>
+                  <td class="actual-cell">33.0 – 33.2 bar</td>
                   <td class="note-cell">Giá trị tác động thực tế <strong>thấp hơn thiết kế</strong> và <strong>tiệm cận giá trị vận hành của van điều áp</strong> (32,3 bar tại thời điểm sự cố)</td>
                 </tr>
                 <tr>
                   <td class="label-cell">Low</td>
                   <td class="design-cell">27.9 bar</td>
-                  <td class="actual-cell" style="color: var(--amber);">25.0 / 25.7 bar <span class="delta-pill" style="background: var(--amber-soft); color: var(--amber);">−2.7 bar</span></td>
+                  <td class="actual-cell" style="color: var(--amber);">25.0 / 25.7 bar</td>
                   <td class="note-cell">Giá trị tác động thực tế thấp hơn cài đặt</td>
                 </tr>
               </tbody>
@@ -2130,13 +2131,13 @@
                 <tr>
                   <td class="label-cell">High</td>
                   <td class="design-cell">37.3 bar</td>
-                  <td class="actual-cell" style="color: var(--amber);">41.0 bar <span class="delta-pill" style="background: var(--amber-soft); color: var(--amber);">+3.7 bar</span></td>
+                  <td class="actual-cell" style="color: var(--amber);">41.0 bar</td>
                   <td class="note-cell">Giá trị tác động thực tế cao hơn thiết kế</td>
                 </tr>
                 <tr>
                   <td class="label-cell">Low</td>
                   <td class="design-cell">26.8 bar</td>
-                  <td class="actual-cell">30.8 bar <span class="delta-pill">+4.0 bar</span></td>
+                  <td class="actual-cell">30.8 bar</td>
                   <td class="note-cell">Giá trị tác động thực tế cao hơn cài đặt, <strong>rất gần với áp suất vận hành thực tế</strong></td>
                 </tr>
               </tbody>
