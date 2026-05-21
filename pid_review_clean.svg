@@ -1,0 +1,197 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1000 860" width="100%" height="100%" role="img" aria-labelledby="title desc">
+  <title id="title">P&amp;ID hệ thống van điều áp nhiên liệu khí</title>
+  <desc id="desc">Bản vẽ review với các khung setting nằm dưới van tương ứng và không bị đường ống hoặc đường tín hiệu cắt ngang.</desc>
+
+  <style>
+    .bg { fill: #fafafa; }
+    .pipe { fill: none; stroke: #333; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+    .sense-line { fill: none; stroke: #555; stroke-width: 1.6; stroke-dasharray: 6 5; stroke-linecap: round; stroke-linejoin: round; }
+    .leader { fill: none; stroke: #777; stroke-width: 1.2; stroke-linecap: round; stroke-linejoin: round; }
+    .box { fill: #fff; stroke: #333; stroke-width: 2; }
+    .setting-box { fill: none; stroke: none; }
+    .title { font-family: Arial, "Helvetica Neue", sans-serif; font-size: 24px; font-weight: 700; fill: #111; }
+    .subtitle { font-family: Arial, "Helvetica Neue", sans-serif; font-size: 15px; fill: #555; }
+    .line-title { font-family: Arial, "Helvetica Neue", sans-serif; font-size: 17px; font-weight: 700; }
+    .label { font-family: Arial, "Helvetica Neue", sans-serif; font-size: 13px; font-weight: 700; fill: #333; }
+    .setting-title { font-family: Arial, "Helvetica Neue", sans-serif; font-size: 12px; font-weight: 700; }
+    .setting-text { font-family: Arial, "Helvetica Neue", sans-serif; font-size: 12px; fill: #333; }
+    .info-title { font-family: Arial, "Helvetica Neue", sans-serif; font-size: 14px; font-weight: 700; fill: #333; }
+    .info-text { font-family: Arial, "Helvetica Neue", sans-serif; font-size: 13px; fill: #555; }
+    .hp1-stroke { stroke: #1565c0; }
+    .hp2-stroke { stroke: #e65100; }
+    .lp-stroke { stroke: #2e7d32; }
+    .hp1-fill { fill: #1565c0; }
+    .hp2-fill { fill: #e65100; }
+    .lp-fill { fill: #2e7d32; }
+    .hp1-box { stroke: #1565c0; }
+    .hp2-box { stroke: #e65100; }
+    .lp-box { stroke: #2e7d32; }
+  </style>
+
+  <defs>
+    <g id="valve-body">
+      <polygon points="-18,-12 -18,12 0,0" fill="#fff" stroke="#333" stroke-width="2.2"/>
+      <polygon points="18,-12 18,12 0,0" fill="#fff" stroke="#333" stroke-width="2.2"/>
+    </g>
+
+    <g id="shutoff-valve">
+      <use href="#valve-body" xlink:href="#valve-body"/>
+      <line x1="0" y1="0" x2="0" y2="-22" stroke="#333" stroke-width="2.2"/>
+      <rect x="-15" y="-38" width="30" height="16" fill="#f3f3f3" stroke="#333" stroke-width="2.2" rx="2"/>
+      <text x="0" y="-26" text-anchor="middle" font-family="Arial, sans-serif" font-size="8.5" font-weight="700" fill="#333">ESD</text>
+    </g>
+
+    <g id="safety-valve">
+      <use href="#valve-body" xlink:href="#valve-body"/>
+      <line x1="0" y1="0" x2="0" y2="-22" stroke="#333" stroke-width="2.2"/>
+      <rect x="-15" y="-38" width="30" height="16" fill="#f3f3f3" stroke="#333" stroke-width="2.2" rx="2"/>
+      <text x="0" y="-26" text-anchor="middle" font-family="Arial, sans-serif" font-size="8.5" font-weight="700" fill="#333">SSO</text>
+    </g>
+
+    <g id="regulator">
+      <use href="#valve-body" xlink:href="#valve-body"/>
+      <line x1="0" y1="0" x2="0" y2="-24" stroke="#333" stroke-width="2.2"/>
+      <path d="M -18,-24 Q 0,-40 18,-24 Z" fill="#f3f3f3" stroke="#333" stroke-width="2.2"/>
+    </g>
+
+    <g id="filter">
+      <rect x="-19" y="-19" width="38" height="38" class="box" rx="3"/>
+      <line x1="-15" y1="-15" x2="15" y2="15" stroke="#333" stroke-width="1.6" stroke-dasharray="4 4"/>
+      <text x="0" y="5" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="700" fill="#333">F</text>
+    </g>
+  </defs>
+
+  <rect class="bg" width="1000" height="860"/>
+
+  <text x="500" y="34" text-anchor="middle" class="title">P&amp;ID: HỆ THỐNG VAN ĐIỀU ÁP NHIÊN LIỆU KHÍ</text>
+  <text x="500" y="58" text-anchor="middle" class="subtitle">Gas Fuel Supply System - PM2.2 (GT1 &amp; GT2, Auxiliary Equipment)</text>
+
+  <g id="inlet">
+    <path d="M 60,390 L 180,390" class="pipe"/>
+    <path d="M 180,160 L 180,620" class="pipe"/>
+    <polygon points="58,378 58,402 84,390" fill="#333"/>
+    <text x="162" y="316" text-anchor="end" class="info-title">TỪ TRẠM PVGAS</text>
+    <text x="162" y="424" text-anchor="end" class="info-text">Áp suất: ~43.8 bar</text>
+    <text x="162" y="442" text-anchor="end" class="info-text">Nhiệt độ: ~24°C</text>
+  </g>
+
+  <g id="outlets">
+    <path d="M 845,160 L 845,390" class="pipe"/>
+    <path d="M 845,275 L 940,275" class="pipe"/>
+    <polygon points="916,262 916,288 944,275" fill="#333"/>
+    <text x="850" y="248" class="info-title">ĐẾN GAS HEATER</text>
+    <text x="850" y="310" class="info-text">Cấp cho GT1 &amp; GT2</text>
+    <text x="850" y="328" class="info-text">HP vận hành: 32-33 bar</text>
+
+    <path d="M 845,620 L 940,620" class="pipe lp-stroke"/>
+    <polygon points="916,607 916,633 944,620" class="lp-fill"/>
+    <text x="850" y="594" class="info-title lp-fill">ĐẾN LÒ HƠI PHỤ</text>
+    <text x="850" y="653" class="info-text">Aux Boiler / Heating</text>
+    <text x="850" y="671" class="info-text">LP vận hành: ~6.5 bar</text>
+  </g>
+
+  <g id="line-1">
+    <text x="190" y="126" class="line-title hp1-fill">LINE 1 (MAIN)</text>
+    <path d="M 180,160 L 845,160" class="pipe hp1-stroke"/>
+    <path d="M 760,160 L 760,96 L 690,96 L 690,120" class="sense-line"/>
+    <path d="M 760,96 L 520,96 L 520,120" class="sense-line"/>
+    <path d="M 760,96 L 350,96 L 350,120" class="sense-line"/>
+
+    <use href="#filter" xlink:href="#filter" x="250" y="160"/>
+    <text x="250" y="204" text-anchor="middle" class="label">Bộ lọc Gas</text>
+
+    <g color="#1565c0">
+      <use href="#shutoff-valve" xlink:href="#shutoff-valve" x="350" y="160"/>
+      <use href="#safety-valve" xlink:href="#safety-valve" x="520" y="160"/>
+      <use href="#regulator" xlink:href="#regulator" x="690" y="160"/>
+    </g>
+    <text x="350" y="204" text-anchor="middle" class="label">Slam Shut (ESD)</text>
+    <text x="520" y="204" text-anchor="middle" class="label">Safety Shut-off</text>
+    <text x="690" y="204" text-anchor="middle" class="label">Regulator</text>
+
+    <rect x="272" y="222" width="156" height="48" class="setting-box"/>
+    <text x="350" y="240" text-anchor="middle" class="setting-title hp1-fill">ESD Setting</text>
+    <text x="350" y="258" text-anchor="middle" class="setting-text">High Trip: 36.5 bar</text>
+    <path d="M 350,222 L 350,210" class="leader"/>
+
+    <rect x="438" y="222" width="164" height="66" class="setting-box"/>
+    <text x="520" y="240" text-anchor="middle" class="setting-title hp1-fill">SSO Setting</text>
+    <text x="520" y="258" text-anchor="middle" class="setting-text">High Trip: 36.3 bar</text>
+    <text x="520" y="276" text-anchor="middle" class="setting-text">Low Trip: 27.9 bar</text>
+    <path d="M 520,222 L 520,210" class="leader"/>
+
+    <rect x="612" y="222" width="156" height="48" class="setting-box"/>
+    <text x="690" y="240" text-anchor="middle" class="setting-title hp1-fill">Regulator</text>
+    <text x="690" y="258" text-anchor="middle" class="setting-text">Working Set: 33.9 bar</text>
+    <path d="M 690,222 L 690,210" class="leader"/>
+  </g>
+
+  <g id="line-2">
+    <text x="190" y="356" class="line-title hp2-fill">LINE 2 (BACKUP)</text>
+    <path d="M 180,390 L 845,390" class="pipe hp2-stroke"/>
+    <path d="M 760,390 L 760,326 L 690,326 L 690,350" class="sense-line"/>
+    <path d="M 760,326 L 520,326 L 520,350" class="sense-line"/>
+    <path d="M 760,326 L 350,326 L 350,350" class="sense-line"/>
+
+    <use href="#filter" xlink:href="#filter" x="250" y="390"/>
+    <text x="250" y="434" text-anchor="middle" class="label">Bộ lọc Gas</text>
+
+    <g color="#e65100">
+      <use href="#shutoff-valve" xlink:href="#shutoff-valve" x="350" y="390"/>
+      <use href="#safety-valve" xlink:href="#safety-valve" x="520" y="390"/>
+      <use href="#regulator" xlink:href="#regulator" x="690" y="390"/>
+    </g>
+    <text x="350" y="434" text-anchor="middle" class="label">Slam Shut (ESD)</text>
+    <text x="520" y="434" text-anchor="middle" class="label">Safety Shut-off</text>
+    <text x="690" y="434" text-anchor="middle" class="label">Regulator</text>
+
+    <rect x="272" y="452" width="156" height="48" class="setting-box"/>
+    <text x="350" y="470" text-anchor="middle" class="setting-title hp2-fill">ESD Setting</text>
+    <text x="350" y="488" text-anchor="middle" class="setting-text">High Trip: 37.5 bar</text>
+    <path d="M 350,452 L 350,440" class="leader"/>
+
+    <rect x="438" y="452" width="164" height="66" class="setting-box"/>
+    <text x="520" y="470" text-anchor="middle" class="setting-title hp2-fill">SSO Setting</text>
+    <text x="520" y="488" text-anchor="middle" class="setting-text">High Trip: 37.3 bar</text>
+    <text x="520" y="506" text-anchor="middle" class="setting-text">Low Trip: 26.8 bar</text>
+    <path d="M 520,452 L 520,440" class="leader"/>
+
+    <rect x="612" y="452" width="156" height="48" class="setting-box"/>
+    <text x="690" y="470" text-anchor="middle" class="setting-title hp2-fill">Regulator</text>
+    <text x="690" y="488" text-anchor="middle" class="setting-text">Working Set: 32.6 bar</text>
+    <path d="M 690,452 L 690,440" class="leader"/>
+  </g>
+
+  <g id="line-3">
+    <text x="220" y="586" class="line-title lp-fill">LINE 3 (LP)</text>
+    <path d="M 180,620 L 845,620" class="pipe lp-stroke"/>
+    <path d="M 760,620 L 760,556 L 690,556 L 690,580" class="sense-line"/>
+    <path d="M 760,556 L 520,556 L 520,580" class="sense-line"/>
+    <path d="M 760,556 L 350,556 L 350,580" class="sense-line"/>
+
+    <use href="#filter" xlink:href="#filter" x="250" y="620"/>
+    <text x="250" y="664" text-anchor="middle" class="label">Bộ lọc Gas</text>
+
+    <g color="#2e7d32">
+      <use href="#shutoff-valve" xlink:href="#shutoff-valve" x="350" y="620"/>
+      <use href="#safety-valve" xlink:href="#safety-valve" x="520" y="620"/>
+      <use href="#regulator" xlink:href="#regulator" x="690" y="620"/>
+    </g>
+    <text x="350" y="664" text-anchor="middle" class="label">Slam Shut (ESD)</text>
+    <text x="520" y="664" text-anchor="middle" class="label">Safety Shut-off</text>
+    <text x="690" y="664" text-anchor="middle" class="label">Regulator</text>
+
+  </g>
+
+  <g id="legend">
+    <rect x="60" y="780" width="880" height="56" fill="#fff" stroke="#ccc" stroke-width="1.2" rx="6"/>
+    <text x="78" y="803" class="info-title">Ghi chú P&amp;ID:</text>
+    <line x1="178" y1="798" x2="226" y2="798" class="pipe"/>
+    <text x="238" y="803" class="info-text">Đường ống chính (Piping)</text>
+    <line x1="430" y1="798" x2="478" y2="798" class="sense-line"/>
+    <text x="490" y="803" class="info-text">Đường cảm biến (Sensing Line)</text>
+    <text x="78" y="824" class="info-text">Các đường tín hiệu được đi phía trên cụm van; các khung setting đặt riêng dưới từng van để tránh che/cắt chữ.</text>
+  </g>
+</svg>
+
