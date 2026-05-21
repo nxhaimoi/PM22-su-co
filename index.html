@@ -1,0 +1,3100 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phân tích sự cố GT1, GT2 — NMĐ Phú Mỹ 2.2 — 16/05/2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /*
+    ================================================================
+    BÀI TRÌNH BÀY PHÂN TÍCH SỰ CỐ — NMĐ PHÚ MỸ 2.2
+    Tông màu: sáng (warm-cream + sky-blue + amber accents)
+    Font: Plus Jakarta Sans (display) + Be Vietnam Pro (body)
+    ================================================================
+  */
+
+  :root {
+    /* Background palette — bright, warm, optimistic */
+    --bg-base: #FBF9F4;          /* warm cream — chủ đạo */
+    --bg-canvas: #F4F1E8;        /* nền phụ */
+    --bg-card: #FFFFFF;          /* card trắng */
+    --bg-soft: #F6F3EC;          /* soft surface */
+    --bg-tinted: #EEF6FB;        /* xanh nhạt cho info */
+
+    /* Text — đủ độ tương phản trên nền sáng */
+    --text-primary: #16243A;     /* deep navy */
+    --text-secondary: #475569;
+    --text-muted: #94A3B8;
+    --text-onPrimary: #FAFAF7;
+
+    /* Accent system */
+    --primary: #0F4C81;          /* navy chủ đạo — như EVN logo */
+    --primary-soft: #DAE8F2;
+    --sky: #0EA5E9;              /* xanh dương — main accent */
+    --sky-soft: #E0F2FE;
+    --amber: #D97706;            /* cam — highlight, warning */
+    --amber-soft: #FEF3C7;
+    --coral: #DC2626;            /* đỏ — danger, trip */
+    --coral-soft: #FEE2E2;
+    --emerald: #047857;          /* xanh lá — ok, normal */
+    --emerald-soft: #D1FAE5;
+
+    /* Borders */
+    --border: #E5E1D5;
+    --border-soft: #EFEAD8;
+    --border-strong: #C9C2AC;
+
+    /* Misc */
+    --shadow-sm: 0 1px 2px rgba(22, 36, 58, 0.05);
+    --shadow-md: 0 4px 12px rgba(22, 36, 58, 0.06), 0 1px 3px rgba(22, 36, 58, 0.04);
+    --shadow-lg: 0 12px 32px rgba(22, 36, 58, 0.10), 0 4px 12px rgba(22, 36, 58, 0.05);
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 16px;
+    --radius-xl: 22px;
+
+    --font-display: 'Plus Jakarta Sans', 'Be Vietnam Pro', system-ui, sans-serif;
+    --font-body: 'Be Vietnam Pro', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    font-family: var(--font-body);
+    color: var(--text-primary);
+    background: var(--bg-base);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* ============================================================
+     APP LAYOUT — left rail nav + main slide area
+     ============================================================ */
+  .app {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    height: 100vh;
+    background:
+      radial-gradient(ellipse at top left, rgba(14, 165, 233, 0.08), transparent 50%),
+      radial-gradient(ellipse at bottom right, rgba(217, 119, 6, 0.06), transparent 50%),
+      var(--bg-base);
+  }
+
+  /* ============================================================
+     SIDEBAR
+     ============================================================ */
+  .sidebar {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-right: 1px solid var(--border-soft);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .sidebar-header {
+    padding: 24px 24px 18px;
+    border-bottom: 1px solid var(--border-soft);
+  }
+
+  .brand {
+    margin-bottom: 14px;
+  }
+
+  .brand img {
+    height: 52px;
+    width: auto;
+    display: block;
+  }
+
+  .report-meta {
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    padding: 8px 10px;
+    background: var(--bg-tinted);
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(14, 165, 233, 0.15);
+  }
+
+  .report-meta strong {
+    color: var(--primary);
+    font-weight: 600;
+  }
+
+  .nav {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 12px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-strong) transparent;
+  }
+
+  .nav::-webkit-scrollbar { width: 6px; }
+  .nav::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.18s ease;
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 2px;
+    border: 1px solid transparent;
+    user-select: none;
+  }
+
+  .nav-item:hover {
+    background: var(--bg-soft);
+    color: var(--text-primary);
+  }
+
+  .nav-item.active {
+    background: linear-gradient(90deg, rgba(14, 165, 233, 0.10), rgba(14, 165, 233, 0.02));
+    color: var(--primary);
+    font-weight: 600;
+    border-color: rgba(14, 165, 233, 0.18);
+  }
+
+  .nav-num {
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    background: var(--bg-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    flex-shrink: 0;
+    transition: all 0.18s;
+  }
+
+  .nav-item.active .nav-num {
+    background: var(--primary);
+    color: white;
+  }
+
+  .nav-label {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sidebar-footer {
+    padding: 14px 20px;
+    border-top: 1px solid var(--border-soft);
+    font-size: 10.5px;
+    color: var(--text-muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .key-hint {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+
+  .kbd {
+    display: inline-block;
+    padding: 2px 6px;
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    color: var(--text-secondary);
+    line-height: 1;
+  }
+
+  /* ============================================================
+     MAIN AREA — slides
+     ============================================================ */
+  .main {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Top bar */
+  .topbar {
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 32px;
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border-soft);
+    flex-shrink: 0;
+    z-index: 10;
+  }
+
+  .topbar-title {
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: -0.1px;
+  }
+
+  .topbar-title .accent {
+    color: var(--sky);
+  }
+
+  .topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .slide-counter {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-secondary);
+    background: var(--bg-soft);
+    padding: 5px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border-soft);
+  }
+
+  .slide-counter .current { color: var(--primary); font-weight: 600; }
+
+  .nav-arrows { display: flex; gap: 6px; }
+
+  .nav-btn {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    transition: all 0.15s;
+  }
+
+  .nav-btn:hover {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+    transform: translateY(-1px);
+  }
+
+  .nav-btn:active { transform: translateY(0); }
+
+  .nav-btn svg { width: 14px; height: 14px; }
+
+  /* Progress bar */
+  .progress-bar {
+    position: absolute;
+    bottom: 0; left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--sky), var(--primary));
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 11;
+    border-radius: 0 3px 3px 0;
+  }
+
+  /* Slide container */
+  .slides {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    padding: 36px 56px 40px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    opacity: 0;
+    transform: translateX(40px);
+    transition: opacity 0.4s ease, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-strong) transparent;
+  }
+
+  .slide::-webkit-scrollbar { width: 8px; }
+  .slide::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 4px; }
+
+  .slide.active {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+  }
+
+  .slide.prev {
+    transform: translateX(-40px);
+  }
+
+  /* ============================================================
+     SLIDE STYLES — shared components
+     ============================================================ */
+  .slide-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--sky);
+    margin-bottom: 14px;
+    padding: 5px 12px;
+    background: var(--sky-soft);
+    border-radius: 100px;
+    border: 1px solid rgba(14, 165, 233, 0.2);
+  }
+
+  .slide-eyebrow .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--sky);
+    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2);
+  }
+
+  .slide-title {
+    font-family: var(--font-display);
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.8px;
+    color: var(--text-primary);
+    line-height: 1.15;
+    margin-bottom: 12px;
+  }
+
+  .slide-title .em {
+    background: linear-gradient(135deg, var(--sky), var(--primary));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .slide-subtitle {
+    font-size: 15px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    max-width: 780px;
+    margin-bottom: 28px;
+  }
+
+  /* ============================================================
+     SLIDE 1 — COVER
+     ============================================================ */
+  .cover {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    padding: 0 56px;
+  }
+
+  .cover-decor {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .cover-decor::before,
+  .cover-decor::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0.5;
+  }
+
+  .cover-decor::before {
+    width: 380px; height: 380px;
+    background: radial-gradient(circle, rgba(14, 165, 233, 0.35), transparent 70%);
+    top: -100px; right: -80px;
+  }
+
+  .cover-decor::after {
+    width: 320px; height: 320px;
+    background: radial-gradient(circle, rgba(217, 119, 6, 0.25), transparent 70%);
+    bottom: -80px; left: 100px;
+  }
+
+  .cover-content {
+    position: relative;
+    z-index: 1;
+    max-width: 860px;
+  }
+
+  .cover-org {
+    margin-bottom: 28px;
+    padding: 14px 20px;
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-lg);
+    backdrop-filter: blur(10px);
+    width: fit-content;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .cover-org img {
+    height: 64px;
+    width: auto;
+    display: block;
+  }
+
+  .cover-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 18px;
+  }
+
+  .cover-title {
+    font-family: var(--font-display);
+    font-size: 56px;
+    font-weight: 800;
+    letter-spacing: -1.8px;
+    line-height: 1.05;
+    color: var(--text-primary);
+    margin-bottom: 18px;
+  }
+
+  .cover-title .em {
+    background: linear-gradient(135deg, var(--sky) 0%, var(--primary) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .cover-subtitle {
+    font-size: 18px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 36px;
+    max-width: 700px;
+  }
+
+  .cover-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    max-width: 820px;
+  }
+
+  .cover-stat {
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    backdrop-filter: blur(8px);
+    transition: transform 0.2s;
+  }
+
+  .cover-stat:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .cover-stat-label {
+    font-size: 10.5px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .cover-stat-value {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.5px;
+    line-height: 1.1;
+  }
+
+  .cover-stat-value .unit {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-left: 2px;
+  }
+
+  .cover-stat.accent .cover-stat-value { color: var(--sky); }
+  .cover-stat.danger .cover-stat-value { color: var(--coral); }
+  .cover-stat.warning .cover-stat-value { color: var(--amber); }
+
+  /* ============================================================
+     CONTENT GRID utilities
+     ============================================================ */
+  .content {
+    max-width: 1180px;
+  }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+
+  .grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-lg);
+    padding: 22px 24px;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s;
+  }
+
+  .card:hover { box-shadow: var(--shadow-md); }
+
+  .card-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .card-icon {
+    width: 28px; height: 28px;
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--sky-soft);
+    color: var(--sky);
+  }
+
+  .card-icon svg { width: 16px; height: 16px; }
+
+  .card-icon.amber { background: var(--amber-soft); color: var(--amber); }
+  .card-icon.emerald { background: var(--emerald-soft); color: var(--emerald); }
+  .card-icon.coral { background: var(--coral-soft); color: var(--coral); }
+  .card-icon.primary { background: var(--primary-soft); color: var(--primary); }
+
+  /* Unit cards (GT1, GT2, ST3) */
+  .unit-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+  }
+
+  .unit-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-lg);
+    padding: 26px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.25s;
+  }
+
+  .unit-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--sky), var(--primary));
+  }
+
+  .unit-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .unit-card .unit-name {
+    font-family: var(--font-display);
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+
+  .unit-card .unit-type {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+
+  .unit-card .unit-power {
+    font-family: var(--font-display);
+    font-size: 44px;
+    font-weight: 700;
+    color: var(--sky);
+    letter-spacing: -1.5px;
+    line-height: 1;
+  }
+
+  .unit-card .unit-power .unit-suffix {
+    font-size: 18px;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-left: 4px;
+  }
+
+  .unit-card .unit-fuel {
+    margin-top: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 11px;
+    background: var(--emerald-soft);
+    color: var(--emerald);
+    font-size: 11.5px;
+    font-weight: 600;
+    border-radius: 100px;
+  }
+
+  .unit-card .unit-fuel .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--emerald);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(1.2); }
+  }
+
+  /* ============================================================
+     P&ID SCHEMATIC — SVG container
+     ============================================================ */
+  .schematic-wrap {
+    background: linear-gradient(180deg, #FFFFFF, #F8F5EC);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-lg);
+    padding: 24px 20px 18px;
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+
+  .schematic-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 16px;
+  }
+
+  .schematic-title {
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-secondary);
+  }
+
+  .schematic-legend {
+    display: flex;
+    gap: 14px;
+    font-size: 11px;
+    color: var(--text-secondary);
+  }
+
+  .schematic-legend .lg-item {
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  .lg-swatch {
+    width: 14px; height: 3px; border-radius: 1px;
+  }
+
+  .schematic-svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* ============================================================
+     TIMELINE
+     ============================================================ */
+  .timeline {
+    position: relative;
+    padding-left: 28px;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 11px; top: 8px; bottom: 8px;
+    width: 2px;
+    background: linear-gradient(180deg, var(--sky), var(--coral));
+    border-radius: 1px;
+  }
+
+  .timeline-item {
+    position: relative;
+    padding: 0 0 18px 24px;
+    opacity: 0;
+    transform: translateX(-10px);
+    animation: slideInLeft 0.5s ease forwards;
+  }
+
+  .timeline-item:nth-child(1) { animation-delay: 0.05s; }
+  .timeline-item:nth-child(2) { animation-delay: 0.15s; }
+  .timeline-item:nth-child(3) { animation-delay: 0.25s; }
+  .timeline-item:nth-child(4) { animation-delay: 0.35s; }
+  .timeline-item:nth-child(5) { animation-delay: 0.45s; }
+  .timeline-item:nth-child(6) { animation-delay: 0.55s; }
+  .timeline-item:nth-child(7) { animation-delay: 0.65s; }
+
+  @keyframes slideInLeft {
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -23px; top: 7px;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: white;
+    border: 2.5px solid var(--sky);
+    z-index: 1;
+    box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.12);
+  }
+
+  .timeline-item.danger::before {
+    border-color: var(--coral);
+    box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.15);
+  }
+
+  .timeline-item.warning::before {
+    border-color: var(--amber);
+    box-shadow: 0 0 0 4px rgba(217, 119, 6, 0.15);
+  }
+
+  .timeline-item.success::before {
+    border-color: var(--emerald);
+    box-shadow: 0 0 0 4px rgba(4, 120, 87, 0.15);
+  }
+
+  .timeline-time {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--primary);
+    background: var(--primary-soft);
+    padding: 2px 8px;
+    border-radius: 5px;
+    margin-bottom: 5px;
+  }
+
+  .timeline-item.danger .timeline-time { color: var(--coral); background: var(--coral-soft); }
+  .timeline-item.warning .timeline-time { color: var(--amber); background: var(--amber-soft); }
+  .timeline-item.success .timeline-time { color: var(--emerald); background: var(--emerald-soft); }
+
+  .timeline-event {
+    font-size: 14px;
+    color: var(--text-primary);
+    line-height: 1.55;
+  }
+
+  .timeline-event strong { color: var(--primary); font-weight: 600; }
+  .timeline-item.danger .timeline-event strong { color: var(--coral); }
+  .timeline-item.warning .timeline-event strong { color: var(--amber); }
+
+  /* ============================================================
+     DESIGN PARAMETERS TABLE (Line 1 vs Line 2)
+     ============================================================ */
+  .param-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .param-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    box-shadow: var(--shadow-sm);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .param-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+  }
+
+  .param-card.main::before { background: linear-gradient(90deg, var(--sky), #38BDF8); }
+  .param-card.backup::before { background: linear-gradient(90deg, var(--amber), #FBBF24); }
+
+  .param-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 18px;
+  }
+
+  .param-card-title {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.4px;
+  }
+
+  .param-card-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .param-badge {
+    padding: 4px 10px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .param-card.main .param-badge { background: var(--sky-soft); color: var(--sky); }
+  .param-card.backup .param-badge { background: var(--amber-soft); color: var(--amber); }
+
+  .param-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .param-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 11px 14px;
+    background: var(--bg-soft);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-soft);
+    transition: background 0.18s;
+  }
+
+  .param-row:hover { background: var(--bg-tinted); }
+
+  .param-row-label {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.3;
+  }
+
+  .param-row-label strong {
+    color: var(--text-primary);
+    font-weight: 600;
+    display: block;
+    font-size: 13.5px;
+  }
+
+  .param-row-value {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--primary);
+  }
+
+  /* Inspection results — design vs actual */
+  .insp-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-top: 10px;
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-soft);
+  }
+
+  .insp-table th {
+    background: var(--bg-soft);
+    color: var(--text-secondary);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 11px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-soft);
+  }
+
+  .insp-table td {
+    padding: 13px 14px;
+    font-size: 13.5px;
+    border-bottom: 1px solid var(--border-soft);
+    vertical-align: middle;
+  }
+
+  .insp-table tr:last-child td { border-bottom: none; }
+
+  .insp-table .label-cell {
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .insp-table .design-cell {
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  .insp-table .actual-cell {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    color: var(--coral);
+  }
+
+  .insp-table .actual-cell.high {
+    color: var(--amber);
+  }
+
+  .insp-table .note-cell {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.45;
+  }
+
+  .insp-table .note-cell strong {
+    color: var(--coral);
+    font-weight: 600;
+  }
+
+  .delta-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 2px 7px;
+    border-radius: 100px;
+    font-size: 10.5px;
+    font-weight: 600;
+    background: var(--coral-soft);
+    color: var(--coral);
+    margin-left: 6px;
+  }
+
+  /* ============================================================
+     CHART — DYNAMIC PRESSURE VISUALIZATION
+     ============================================================ */
+  .chart-shell {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-lg);
+    padding: 22px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .chart-info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .chart-info-title {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.3px;
+  }
+
+  .chart-info-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .chart-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .ctrl-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: var(--font-body);
+  }
+
+  .ctrl-btn:hover {
+    border-color: var(--sky);
+    color: var(--sky);
+  }
+
+  .ctrl-btn.primary {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+  }
+
+  .ctrl-btn.primary:hover {
+    background: var(--sky);
+    border-color: var(--sky);
+    color: white;
+    transform: translateY(-1px);
+  }
+
+  .ctrl-btn svg { width: 14px; height: 14px; }
+
+  .speed-select {
+    padding: 8px 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-family: var(--font-body);
+    cursor: pointer;
+  }
+
+  .chart-canvas-wrap {
+    position: relative;
+    width: 100%;
+    height: 380px;
+    background: linear-gradient(180deg, #FCFBF6, #F8F5EC);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+
+  #pressureChart {
+    width: 100%; height: 100%;
+    display: block;
+  }
+
+  /* Live readout panel */
+  .readout-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 14px;
+  }
+
+  .readout {
+    background: var(--bg-soft);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    transition: all 0.2s;
+  }
+
+  .readout.active {
+    background: var(--sky-soft);
+    border-color: var(--sky);
+  }
+
+  .readout.alarm {
+    background: var(--coral-soft);
+    border-color: var(--coral);
+    animation: flashAlarm 0.6s ease-in-out;
+  }
+
+  @keyframes flashAlarm {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.04); }
+  }
+
+  .readout-label {
+    font-size: 10.5px;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .readout-label .pulse {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--text-muted);
+  }
+
+  .readout.active .readout-label .pulse {
+    background: var(--sky);
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+
+  .readout.alarm .readout-label .pulse { background: var(--coral); }
+
+  .readout-value {
+    font-family: var(--font-mono);
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: -0.5px;
+    line-height: 1;
+  }
+
+  .readout.active .readout-value { color: var(--sky); }
+  .readout.alarm .readout-value { color: var(--coral); }
+
+  .readout-unit {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-left: 3px;
+  }
+
+  /* Event log */
+  .event-log {
+    margin-top: 12px;
+    background: var(--bg-soft);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    min-height: 60px;
+    max-height: 110px;
+    overflow-y: auto;
+    font-family: var(--font-mono);
+    font-size: 12px;
+  }
+
+  .event-log-entry {
+    padding: 3px 0;
+    color: var(--text-secondary);
+    border-bottom: 1px dashed transparent;
+    animation: logIn 0.35s ease;
+  }
+
+  @keyframes logIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .event-log-entry .ts {
+    color: var(--text-muted);
+    margin-right: 8px;
+  }
+
+  .event-log-entry.warn .text { color: var(--amber); font-weight: 600; }
+  .event-log-entry.danger .text { color: var(--coral); font-weight: 600; }
+  .event-log-entry.ok .text { color: var(--emerald); font-weight: 600; }
+
+  /* ============================================================
+     ANALYSIS — root cause steps
+     ============================================================ */
+  .analysis-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .analysis-step {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    gap: 18px;
+    align-items: stretch;
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-lg);
+    padding: 18px 22px;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .analysis-step:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+
+  .analysis-step::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--border);
+  }
+
+  .analysis-step.crit::before { background: var(--coral); }
+  .analysis-step.warn::before { background: var(--amber); }
+  .analysis-step.info::before { background: var(--sky); }
+
+  .step-num {
+    font-family: var(--font-display);
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--text-muted);
+    line-height: 1;
+    letter-spacing: -1.5px;
+    align-self: center;
+    text-align: center;
+  }
+
+  .analysis-step.crit .step-num { color: var(--coral); }
+  .analysis-step.warn .step-num { color: var(--amber); }
+  .analysis-step.info .step-num { color: var(--sky); }
+
+  .step-body {
+    line-height: 1.55;
+  }
+
+  .step-title {
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 5px;
+    letter-spacing: -0.2px;
+  }
+
+  .step-desc {
+    font-size: 13.5px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  .step-desc .hl { color: var(--coral); font-weight: 600; }
+  .step-desc .hl-good { color: var(--emerald); font-weight: 600; }
+  .step-desc code {
+    font-family: var(--font-mono);
+    background: var(--bg-soft);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    border: 1px solid var(--border-soft);
+    color: var(--primary);
+  }
+
+  /* ============================================================
+     RECOMMENDATIONS
+     ============================================================ */
+  .reco-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .reco-item {
+    display: grid;
+    grid-template-columns: 44px 1fr;
+    gap: 16px;
+    align-items: start;
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-lg);
+    padding: 20px 22px;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s;
+  }
+
+  .reco-item:hover {
+    transform: translateX(4px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .reco-icon {
+    width: 44px; height: 44px;
+    border-radius: 11px;
+    background: linear-gradient(135deg, var(--sky-soft), rgba(14, 165, 233, 0.2));
+    color: var(--sky);
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .reco-icon svg { width: 22px; height: 22px; }
+
+  .reco-text .reco-title {
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+    letter-spacing: -0.2px;
+  }
+
+  .reco-text .reco-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.55;
+  }
+
+  /* Conclusion summary card */
+  .summary-card {
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.08), rgba(217, 119, 6, 0.05));
+    border: 1px solid rgba(14, 165, 233, 0.15);
+    border-radius: var(--radius-lg);
+    padding: 22px 26px;
+    margin-bottom: 20px;
+  }
+
+  .summary-card .ico {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: var(--sky);
+    color: white;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 12px;
+    box-shadow: 0 6px 16px rgba(14, 165, 233, 0.3);
+  }
+
+  .summary-card .summary-title {
+    font-family: var(--font-display);
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+  }
+
+  .summary-card .summary-text {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.65;
+  }
+
+  .summary-card .summary-text strong {
+    color: var(--primary);
+    font-weight: 600;
+  }
+
+  /* Section heading helper */
+  .h-section {
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 22px 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .h-section::before {
+    content: '';
+    width: 4px; height: 16px;
+    background: linear-gradient(180deg, var(--sky), var(--primary));
+    border-radius: 2px;
+  }
+
+  /* Print/responsive */
+  @media (max-width: 1100px) {
+    .app { grid-template-columns: 240px 1fr; }
+    .slide { padding: 28px 36px; }
+    .cover-title { font-size: 42px; }
+  }
+
+  @media (max-width: 820px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .slide { padding: 20px 18px 28px; }
+    .slide-title { font-size: 22px; letter-spacing: -0.4px; }
+    .slide-subtitle { font-size: 13px; margin-bottom: 18px; }
+    .topbar { padding: 0 16px; height: 50px; }
+    .topbar-title { font-size: 11.5px; }
+    .cover { padding: 0 18px; }
+    .cover-title { font-size: 34px; letter-spacing: -1px; }
+    .cover-subtitle { font-size: 14px; margin-bottom: 24px; }
+    .cover-stats { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .cover-stat-value { font-size: 18px; }
+    .grid-2 { grid-template-columns: 1fr; }
+    .grid-3 { grid-template-columns: 1fr; }
+    .unit-grid { grid-template-columns: 1fr; }
+    .param-grid { grid-template-columns: 1fr; }
+    .readout-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .analysis-step { grid-template-columns: 40px 1fr; gap: 12px; padding: 12px 14px; }
+    .step-num { font-size: 24px; }
+    .reco-item { grid-template-columns: 36px 1fr; gap: 12px; padding: 14px 16px; }
+    .reco-icon { width: 36px; height: 36px; }
+    .reco-icon svg { width: 18px; height: 18px; }
+    .chart-canvas-wrap { height: 240px; }
+    .chart-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .chart-controls { width: 100%; justify-content: flex-start; }
+    .ctrl-btn { padding: 6px 10px; font-size: 11.5px; }
+    .speed-select { padding: 6px 8px; font-size: 11.5px; }
+    .schematic-wrap { overflow-x: auto; }
+    .schematic-svg { min-width: 600px; max-height: none; }
+    .insp-table { font-size: 12px; }
+    .insp-table th, .insp-table td { padding: 9px 10px; }
+    .card { padding: 16px 16px; overflow-x: auto; }
+    .h-section { margin: 16px 0 10px; font-size: 13px; }
+    .summary-card { padding: 16px 18px; }
+    .event-log { max-height: 80px; font-size: 11px; }
+    .readout-value { font-size: 18px; }
+  }
+
+  @media (max-width: 480px) {
+    .slide { padding: 16px 14px 20px; }
+    .slide-title { font-size: 19px; }
+    .cover-title { font-size: 26px; }
+    .cover-stats { grid-template-columns: 1fr 1fr; }
+    .readout-grid { grid-template-columns: 1fr 1fr; }
+    .chart-canvas-wrap { height: 200px; }
+    .topbar-title .accent { display: none; }
+  }
+
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- =============================================
+       SIDEBAR
+       ============================================= -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="brand">
+        <img src="LOGO EVNGENCO3 OPS-05.png" alt="EVN GENCO3 - Trung tâm dịch vụ vận hành">
+      </div>
+      <div class="report-meta">
+        <strong>Báo cáo phân tích sự cố</strong><br>
+        GT1, GT2 — NMĐ Phú Mỹ 2.2<br>
+        Ngày 16/05/2026
+      </div>
+    </div>
+
+    <nav class="nav" id="nav">
+      <!-- Nav items populated by JS -->
+    </nav>
+
+    <div class="sidebar-footer">
+      <span>v.Rev 4 · 05/2026</span>
+      <span class="key-hint">
+        <span class="kbd">←</span><span class="kbd">→</span>
+      </span>
+    </div>
+  </aside>
+
+  <!-- =============================================
+       MAIN
+       ============================================= -->
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-title">
+        Phân tích sự cố <span class="accent">Van Safety Shut Off HP</span> — Phú Mỹ 2.2
+      </div>
+      <div class="topbar-actions">
+        <div class="slide-counter">
+          <span class="current" id="slideCurrent">01</span> / <span id="slideTotal">10</span>
+        </div>
+        <div class="nav-arrows">
+          <button class="nav-btn" id="prevBtn" title="Trang trước (←)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <button class="nav-btn" id="nextBtn" title="Trang sau (→)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="progress-bar" id="progressBar" style="width: 10%"></div>
+
+    <div class="slides" id="slides">
+
+      <!-- =========================================
+           SLIDE 1 — COVER
+           ========================================= -->
+      <section class="slide active" data-title="Trang bìa">
+        <div class="cover">
+          <div class="cover-decor"></div>
+          <div class="cover-content">
+            <div class="cover-org">
+              <img src="LOGO EVNGENCO3 OPS-05.png" alt="EVN GENCO3 - Trung tâm dịch vụ vận hành">
+            </div>
+
+            <div class="cover-label">Báo cáo phân tích sự cố · Rev 4</div>
+
+            <h1 class="cover-title">
+              Sự cố trip <span class="em">GT1, GT2</span><br>
+              do Van Safety Shut Off HP
+            </h1>
+
+            <p class="cover-subtitle">
+              Phân tích nguyên nhân, diễn biến và kiến nghị khắc phục sự cố tổ máy GT1, GT2
+              tại Nhà máy điện <strong>Phú Mỹ 2.2</strong> — ngày 16/05/2026.
+              Liên động dẫn đến ngừng tổ máy ST3.
+            </p>
+
+            <div class="cover-stats">
+              <div class="cover-stat accent">
+                <div class="cover-stat-label">Thời điểm sự cố</div>
+                <div class="cover-stat-value">14:06<span class="unit">16/05</span></div>
+              </div>
+              <div class="cover-stat warning">
+                <div class="cover-stat-label">Thời gian gián đoạn</div>
+                <div class="cover-stat-value">30<span class="unit">phút</span></div>
+              </div>
+              <div class="cover-stat danger">
+                <div class="cover-stat-label">Tổ máy ảnh hưởng</div>
+                <div class="cover-stat-value">3<span class="unit">tổ máy</span></div>
+              </div>
+              <div class="cover-stat">
+                <div class="cover-stat-label">Công suất mất</div>
+                <div class="cover-stat-value">667<span class="unit">MW</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =========================================
+           SLIDE 2 — Tổng quan sự cố
+           ========================================= -->
+      <section class="slide" data-title="Tổng quan sự cố">
+        <div class="content">
+          <div class="slide-eyebrow"><span class="dot"></span> Mục 1 · Tổng quan</div>
+          <h2 class="slide-title">Tổng quan <span class="em">sự cố</span></h2>
+          <p class="slide-subtitle">
+            Vào lúc 14h06 ngày 16/05/2026, cả hai tổ máy GT1 và GT2 đồng thời bị trip
+            do mất áp suất nhiên liệu Khí cấp vào turbine. Tổ máy turbine hơi ST3 ngừng
+            do liên động.
+          </p>
+
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-title">
+                <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+                Mốc thời gian
+              </div>
+              <div class="param-rows">
+                <div class="param-row">
+                  <div class="param-row-label"><strong>Bắt đầu sự cố</strong>14h06, 16/05/2026</div>
+                  <div class="param-row-value">T+0</div>
+                </div>
+                <div class="param-row">
+                  <div class="param-row-label"><strong>Khôi phục</strong>14h36, 16/05/2026</div>
+                  <div class="param-row-value">+30'</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-title">
+                <div class="card-icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+                Nguyên nhân tóm tắt
+              </div>
+              <p style="font-size: 13.5px; line-height: 1.6; color: var(--text-secondary);">
+                Cả 02 van <strong style="color: var(--coral);">Safety Shut Off Valve HP</strong>
+                (Line 1 Main và Line 2 Backup) đồng thời đóng do
+                <strong style="color: var(--coral);">giá trị tác động bảo vệ bị trôi</strong>,
+                tiệm cận giá trị áp suất vận hành thực tế.
+              </p>
+            </div>
+          </div>
+
+          <div class="h-section">Chế độ vận hành trước sự cố</div>
+
+          <div class="unit-grid">
+            <div class="unit-card">
+              <div class="unit-name">GT1</div>
+              <div class="unit-type">Tua-bin khí · Tổ máy 1</div>
+              <div class="unit-power">210<span class="unit-suffix">MW</span></div>
+              <div class="unit-fuel"><span class="dot"></span> Nhiên liệu LNG · Đang vận hành</div>
+            </div>
+            <div class="unit-card">
+              <div class="unit-name">GT2</div>
+              <div class="unit-type">Tua-bin khí · Tổ máy 2</div>
+              <div class="unit-power">211<span class="unit-suffix">MW</span></div>
+              <div class="unit-fuel"><span class="dot"></span> Nhiên liệu LNG · Đang vận hành</div>
+            </div>
+            <div class="unit-card">
+              <div class="unit-name">ST3</div>
+              <div class="unit-type">Tua-bin hơi</div>
+              <div class="unit-power">246<span class="unit-suffix">MW</span></div>
+              <div class="unit-fuel"><span class="dot"></span> Hơi từ lò HRSG 1 &amp; 2</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =========================================
+           SLIDE 3 — Sơ đồ hệ thống điều áp Khí
+           ========================================= -->
+      <section class="slide" data-title="Sơ đồ hệ thống điều áp Khí">
+        <div class="content">
+          <div class="slide-eyebrow"><span class="dot"></span> Mục 2 · Hệ thống</div>
+          <h2 class="slide-title">Sơ đồ hệ thống <span class="em">điều áp Khí</span></h2>
+          <p class="slide-subtitle">
+            Khí Gas từ trạm phân phối PVGAS (43,8 bar, 24°C) được đưa vào nhà máy
+            và phân tách thành 2 nhánh: <strong>HP</strong> (cấp cho GT1, GT2) và
+            <strong>LP</strong> (cấp cho Post Combustion, Aux. Steam Boiler, Hot Water Boiler).
+            Mỗi nhánh đều có cấu hình Main &amp; Backup song song để dự phòng.
+          </p>
+
+          <div class="schematic-wrap">
+            <div class="schematic-header">
+              <div class="schematic-title">P&amp;ID — Sơ đồ nguyên lý đơn giản hóa</div>
+              <div class="schematic-legend">
+                <span class="lg-item"><span class="lg-swatch" style="background: #0EA5E9"></span>Line Main</span>
+                <span class="lg-item"><span class="lg-swatch" style="background: #D97706"></span>Line Backup</span>
+                <span class="lg-item"><span class="lg-swatch" style="background: #16243A"></span>Đường chung</span>
+              </div>
+            </div>
+
+            <img src="PID he thong dieu ap.png" alt="P&amp;ID Sơ đồ hệ thống điều áp Khí" class="schematic-svg">
+            <svg class="schematic-svg" viewBox="0 0 1180 540" xmlns="http://www.w3.org/2000/svg" style="display:none">
+              <defs>
+                <!-- arrow marker -->
+                <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="#16243A"/>
+                </marker>
+                <marker id="arrow-sky" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="#0EA5E9"/>
+                </marker>
+                <marker id="arrow-amber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="#D97706"/>
+                </marker>
+
+                <!-- valve symbols (bowtie) -->
+                <symbol id="valve" viewBox="-12 -8 24 16">
+                  <path d="M -10 -7 L -10 7 L 10 -7 L 10 7 Z" fill="#FFFFFF" stroke="#16243A" stroke-width="1.5"/>
+                </symbol>
+                <symbol id="valve-slam" viewBox="-14 -10 28 20">
+                  <path d="M -12 -8 L -12 8 L 12 -8 L 12 8 Z" fill="#FEE2E2" stroke="#DC2626" stroke-width="1.5"/>
+                  <line x1="0" y1="-8" x2="0" y2="-13" stroke="#DC2626" stroke-width="1.5"/>
+                  <circle cx="0" cy="-15" r="2.5" fill="#DC2626"/>
+                </symbol>
+                <symbol id="valve-safety" viewBox="-14 -10 28 20">
+                  <path d="M -12 -8 L -12 8 L 12 -8 L 12 8 Z" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+                  <line x1="0" y1="-8" x2="0" y2="-13" stroke="#D97706" stroke-width="1.5"/>
+                  <rect x="-3" y="-17" width="6" height="4" fill="#D97706"/>
+                </symbol>
+                <symbol id="regulator" viewBox="-14 -10 28 22">
+                  <circle cx="0" cy="0" r="9" fill="#E0F2FE" stroke="#0EA5E9" stroke-width="1.5"/>
+                  <text x="0" y="3" font-family="Plus Jakarta Sans, sans-serif" font-size="9" font-weight="700" text-anchor="middle" fill="#0EA5E9">R</text>
+                </symbol>
+                <!-- filter -->
+                <symbol id="filter" viewBox="-15 -12 30 24">
+                  <rect x="-13" y="-10" width="26" height="20" rx="2" fill="#FFFFFF" stroke="#16243A" stroke-width="1.5"/>
+                  <line x1="-13" y1="-5" x2="13" y2="-5" stroke="#16243A" stroke-width="1" stroke-dasharray="2,2"/>
+                  <line x1="-13" y1="0" x2="13" y2="0" stroke="#16243A" stroke-width="1" stroke-dasharray="2,2"/>
+                  <line x1="-13" y1="5" x2="13" y2="5" stroke="#16243A" stroke-width="1" stroke-dasharray="2,2"/>
+                </symbol>
+              </defs>
+
+              <!-- Background subtle grid -->
+              <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#E5E1D5" stroke-width="0.4" opacity="0.5"/>
+              </pattern>
+              <rect width="1180" height="540" fill="url(#grid)" opacity="0.5"/>
+
+              <!-- ===== SOURCE: PVGAS ===== -->
+              <g>
+                <rect x="20" y="248" width="120" height="44" rx="8" fill="#FFFFFF" stroke="#16243A" stroke-width="2"/>
+                <text x="80" y="268" font-family="Plus Jakarta Sans, sans-serif" font-size="11" font-weight="700" text-anchor="middle" fill="#16243A">FROM PVGAS</text>
+                <text x="80" y="282" font-family="JetBrains Mono, monospace" font-size="9" text-anchor="middle" fill="#475569">43.8 bar · 24°C</text>
+              </g>
+
+              <!-- Main supply line from PVGAS to split point -->
+              <line x1="140" y1="270" x2="240" y2="270" stroke="#16243A" stroke-width="2.5" marker-end="url(#arrow)"/>
+
+              <!-- Split node -->
+              <circle cx="240" cy="270" r="4" fill="#16243A"/>
+              <line x1="240" y1="270" x2="240" y2="140" stroke="#16243A" stroke-width="2.5"/>
+              <line x1="240" y1="270" x2="240" y2="430" stroke="#16243A" stroke-width="2.5"/>
+
+              <!-- ============================================
+                   HP BRANCH (top) — to GT1, GT2
+                   ============================================ -->
+              <!-- Branch label -->
+              <g>
+                <rect x="260" y="30" width="800" height="30" rx="6" fill="#E0F2FE" stroke="#0EA5E9" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/>
+                <text x="660" y="50" font-family="Plus Jakarta Sans, sans-serif" font-size="12" font-weight="700" text-anchor="middle" fill="#0F4C81" letter-spacing="1">NHÁNH HP (HIGH PRESSURE) · Cấp cho GT1 &amp; GT2 · ~32-33 bar</text>
+              </g>
+
+              <!-- HP Line 1 (Main) -->
+              <g>
+                <!-- horizontal main pipe -->
+                <line x1="240" y1="140" x2="280" y2="140" stroke="#0EA5E9" stroke-width="3"/>
+                <line x1="280" y1="140" x2="960" y2="140" stroke="#0EA5E9" stroke-width="3"/>
+
+                <!-- Filter -->
+                <use href="#filter" x="310" y="140" width="30" height="24"/>
+                <text x="310" y="120" font-family="Be Vietnam Pro" font-size="9.5" text-anchor="middle" fill="#475569" font-weight="600">Bộ lọc</text>
+
+                <!-- Slam Shut -->
+                <use href="#valve-slam" x="410" y="140" width="28" height="20"/>
+                <text x="410" y="118" font-family="Be Vietnam Pro" font-size="9.5" text-anchor="middle" fill="#DC2626" font-weight="600">Slam Shut</text>
+                <text x="410" y="172" font-family="JetBrains Mono" font-size="8" text-anchor="middle" fill="#DC2626" font-weight="500">36.5 bar</text>
+
+                <!-- Safety Shut Off -->
+                <use href="#valve-safety" x="510" y="140" width="28" height="20"/>
+                <text x="510" y="118" font-family="Be Vietnam Pro" font-size="9.5" text-anchor="middle" fill="#D97706" font-weight="600">Safety Shut Off</text>
+                <text x="510" y="172" font-family="JetBrains Mono" font-size="8" text-anchor="middle" fill="#D97706" font-weight="500">H: 36.3 · L: 27.9</text>
+
+                <!-- Regulator -->
+                <use href="#regulator" x="610" y="140" width="28" height="22"/>
+                <text x="610" y="116" font-family="Be Vietnam Pro" font-size="9.5" text-anchor="middle" fill="#0EA5E9" font-weight="600">Regulator</text>
+                <text x="610" y="174" font-family="JetBrains Mono" font-size="8" text-anchor="middle" fill="#0EA5E9" font-weight="500">33.9 bar</text>
+
+                <!-- Line label -->
+                <text x="285" y="155" font-family="Plus Jakarta Sans" font-size="10" font-weight="700" fill="#0F4C81">HP LINE 1 · MAIN</text>
+              </g>
+
+              <!-- HP Line 2 (Backup) -->
+              <g>
+                <line x1="240" y1="220" x2="960" y2="220" stroke="#D97706" stroke-width="3"/>
+                <line x1="240" y1="140" x2="240" y2="220" stroke="#16243A" stroke-width="2.5"/>
+
+                <use href="#filter" x="310" y="220" width="30" height="24"/>
+                <use href="#valve-slam" x="410" y="220" width="28" height="20"/>
+                <text x="410" y="248" font-family="JetBrains Mono" font-size="8" text-anchor="middle" fill="#DC2626" font-weight="500">37.5 bar</text>
+
+                <use href="#valve-safety" x="510" y="220" width="28" height="20"/>
+                <text x="510" y="248" font-family="JetBrains Mono" font-size="8" text-anchor="middle" fill="#D97706" font-weight="500">H: 37.3 · L: 26.8</text>
+
+                <use href="#regulator" x="610" y="220" width="28" height="22"/>
+                <text x="610" y="250" font-family="JetBrains Mono" font-size="8" text-anchor="middle" fill="#0EA5E9" font-weight="500">32.6 bar</text>
+
+                <text x="285" y="235" font-family="Plus Jakarta Sans" font-size="10" font-weight="700" fill="#D97706">HP LINE 2 · BACKUP</text>
+              </g>
+
+              <!-- HP merge -->
+              <line x1="960" y1="140" x2="960" y2="220" stroke="#16243A" stroke-width="2.5"/>
+              <circle cx="960" cy="180" r="4" fill="#16243A"/>
+              <line x1="960" y1="180" x2="1000" y2="180" stroke="#16243A" stroke-width="2.5" marker-end="url(#arrow)"/>
+
+              <!-- Gas Heating / Outlets to GT1, GT2 -->
+              <g>
+                <rect x="1000" y="110" width="160" height="40" rx="8" fill="#E0F2FE" stroke="#0EA5E9" stroke-width="1.5"/>
+                <text x="1080" y="128" font-family="Plus Jakarta Sans" font-size="11" font-weight="700" text-anchor="middle" fill="#0F4C81">→ GT1</text>
+                <text x="1080" y="142" font-family="JetBrains Mono" font-size="8.5" text-anchor="middle" fill="#475569">210 MW · LNG</text>
+
+                <rect x="1000" y="210" width="160" height="40" rx="8" fill="#E0F2FE" stroke="#0EA5E9" stroke-width="1.5"/>
+                <text x="1080" y="228" font-family="Plus Jakarta Sans" font-size="11" font-weight="700" text-anchor="middle" fill="#0F4C81">→ GT2</text>
+                <text x="1080" y="242" font-family="JetBrains Mono" font-size="8.5" text-anchor="middle" fill="#475569">211 MW · LNG</text>
+
+                <line x1="1000" y1="180" x2="980" y2="180" stroke="#16243A" stroke-width="2.5"/>
+                <line x1="980" y1="130" x2="980" y2="230" stroke="#16243A" stroke-width="2.5"/>
+                <line x1="980" y1="130" x2="1000" y2="130" stroke="#16243A" stroke-width="2.5"/>
+                <line x1="980" y1="230" x2="1000" y2="230" stroke="#16243A" stroke-width="2.5"/>
+              </g>
+
+              <!-- ============================================
+                   LP BRANCH (bottom)
+                   ============================================ -->
+              <g>
+                <rect x="260" y="335" width="800" height="30" rx="6" fill="#FEF3C7" stroke="#D97706" stroke-width="1" stroke-dasharray="3,3" opacity="0.4"/>
+                <text x="660" y="355" font-family="Plus Jakarta Sans, sans-serif" font-size="12" font-weight="700" text-anchor="middle" fill="#854F0B" letter-spacing="1">NHÁNH LP (LOW PRESSURE) · Cấp cho Post Combustion · Aux. Steam Boiler · Hot Water Boiler · ~6.5 bar</text>
+              </g>
+
+              <!-- LP Line 1 (Main) -->
+              <g>
+                <line x1="240" y1="430" x2="960" y2="430" stroke="#0EA5E9" stroke-width="2.5"/>
+                <use href="#filter" x="310" y="430" width="30" height="24"/>
+                <use href="#valve-slam" x="410" y="430" width="28" height="20"/>
+                <use href="#valve-safety" x="510" y="430" width="28" height="20"/>
+                <use href="#regulator" x="610" y="430" width="28" height="22"/>
+                <text x="285" y="445" font-family="Plus Jakarta Sans" font-size="10" font-weight="700" fill="#0F4C81">LP LINE 1 · MAIN</text>
+              </g>
+
+              <!-- LP Line 2 (Backup) -->
+              <g>
+                <line x1="240" y1="500" x2="960" y2="500" stroke="#D97706" stroke-width="2.5"/>
+                <line x1="240" y1="430" x2="240" y2="500" stroke="#16243A" stroke-width="2.5"/>
+                <use href="#filter" x="310" y="500" width="30" height="24"/>
+                <use href="#valve-slam" x="410" y="500" width="28" height="20"/>
+                <use href="#valve-safety" x="510" y="500" width="28" height="20"/>
+                <use href="#regulator" x="610" y="500" width="28" height="22"/>
+                <text x="285" y="515" font-family="Plus Jakarta Sans" font-size="10" font-weight="700" fill="#D97706">LP LINE 2 · BACKUP</text>
+              </g>
+
+              <!-- LP merge -->
+              <line x1="960" y1="430" x2="960" y2="500" stroke="#16243A" stroke-width="2.5"/>
+              <circle cx="960" cy="465" r="4" fill="#16243A"/>
+              <line x1="960" y1="465" x2="1000" y2="465" stroke="#16243A" stroke-width="2.5" marker-end="url(#arrow)"/>
+
+              <!-- LP destinations -->
+              <g>
+                <rect x="1000" y="385" width="160" height="22" rx="5" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+                <text x="1080" y="400" font-family="Be Vietnam Pro" font-size="10" font-weight="600" text-anchor="middle" fill="#854F0B">→ HRSG1 Duct Burner</text>
+
+                <rect x="1000" y="420" width="160" height="22" rx="5" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+                <text x="1080" y="435" font-family="Be Vietnam Pro" font-size="10" font-weight="600" text-anchor="middle" fill="#854F0B">→ HRSG2 Duct Burner</text>
+
+                <rect x="1000" y="455" width="160" height="22" rx="5" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+                <text x="1080" y="470" font-family="Be Vietnam Pro" font-size="10" font-weight="600" text-anchor="middle" fill="#854F0B">→ Hot Water Boiler</text>
+
+                <rect x="1000" y="490" width="160" height="22" rx="5" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+                <text x="1080" y="505" font-family="Be Vietnam Pro" font-size="10" font-weight="600" text-anchor="middle" fill="#854F0B">→ Aux. Steam Boiler</text>
+
+                <line x1="1000" y1="465" x2="985" y2="465" stroke="#16243A" stroke-width="2.5"/>
+                <line x1="985" y1="396" x2="985" y2="501" stroke="#16243A" stroke-width="2.5"/>
+                <line x1="985" y1="396" x2="1000" y2="396" stroke="#16243A" stroke-width="2.5"/>
+                <line x1="985" y1="431" x2="1000" y2="431" stroke="#16243A" stroke-width="2.5"/>
+                <line x1="985" y1="501" x2="1000" y2="501" stroke="#16243A" stroke-width="2.5"/>
+              </g>
+
+              <!-- Annotation: focus area highlight -->
+              <g opacity="0.7">
+                <rect x="395" y="100" width="245" height="160" rx="10" fill="none" stroke="#DC2626" stroke-width="2" stroke-dasharray="6,4"/>
+                <text x="517" y="92" font-family="Plus Jakarta Sans" font-size="10" font-weight="700" text-anchor="middle" fill="#DC2626" letter-spacing="0.5">⚠ KHU VỰC SỰ CỐ</text>
+              </g>
+
+            </svg>
+          </div>
+        </div>
+      </section>
+
+      <!-- =========================================
+           SLIDE 4 — Thông số thiết kế HP Line
+           ========================================= -->
+      <section class="slide" data-title="Thông số thiết kế HP">
+        <div class="content">
+          <div class="slide-eyebrow"><span class="dot"></span> Mục 3 · Thiết kế</div>
+          <h2 class="slide-title">Thông số thiết kế <span class="em">vận hành &amp; bảo vệ</span> HP Line</h2>
+          <p class="slide-subtitle">
+            Hai nhánh Main và Backup được thiết kế song song, cùng hoạt động và dự phòng cho nhau.
+            Khi nhánh Main sự cố, nhánh Backup tiếp quản ngay, áp làm việc thấp hơn nhưng vẫn
+            đảm bảo full tải.
+          </p>
+
+          <div class="param-grid">
+            <!-- LINE 1 MAIN -->
+            <div class="param-card main">
+              <div class="param-card-header">
+                <div>
+                  <div class="param-card-title">HP Line 1</div>
+                  <div class="param-card-sub">Đường ống chính · Main</div>
+                </div>
+                <div class="param-badge">Main</div>
+              </div>
+              <div class="param-rows">
+                <div class="param-row">
+                  <div class="param-row-label">
+                    <strong>Slam Shut (ESD)</strong>
+                    Bảo vệ khẩn cấp · Áp suất cao
+                  </div>
+                  <div class="param-row-value">36.5 bar</div>
+                </div>
+                <div class="param-row">
+                  <div class="param-row-label">
+                    <strong>Safety Shut Off · High</strong>
+                    Bảo vệ dải làm việc · Cao
+                  </div>
+                  <div class="param-row-value">36.3 bar</div>
+                </div>
+                <div class="param-row">
+                  <div class="param-row-label">
+                    <strong>Safety Shut Off · Low</strong>
+                    Bảo vệ dải làm việc · Thấp
+                  </div>
+                  <div class="param-row-value">27.9 bar</div>
+                </div>
+                <div class="param-row" style="background: var(--sky-soft); border-color: var(--sky);">
+                  <div class="param-row-label">
+                    <strong>Regulator</strong>
+                    Áp suất làm việc thiết kế
+                  </div>
+                  <div class="param-row-value" style="color: var(--sky)">33.9 bar</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- LINE 2 BACKUP -->
+            <div class="param-card backup">
+              <div class="param-card-header">
+                <div>
+                  <div class="param-card-title">HP Line 2</div>
+                  <div class="param-card-sub">Đường ống dự phòng · Backup</div>
+                </div>
+                <div class="param-badge">Backup</div>
+              </div>
+              <div class="param-rows">
+                <div class="param-row">
+                  <div class="param-row-label">
+                    <strong>Slam Shut (ESD)</strong>
+                    Bảo vệ khẩn cấp · Áp suất cao
+                  </div>
+                  <div class="param-row-value">37.5 bar</div>
+                </div>
+                <div class="param-row">
+                  <div class="param-row-label">
+                    <strong>Safety Shut Off · High</strong>
+                    Bảo vệ dải làm việc · Cao
+                  </div>
+                  <div class="param-row-value">37.3 bar</div>
+                </div>
+                <div class="param-row">
+                  <div class="param-row-label">
+                    <strong>Safety Shut Off · Low</strong>
+                    Bảo vệ dải làm việc · Thấp
+                  </div>
+                  <div class="param-row-value">26.8 bar</div>
+                </div>
+                <div class="param-row" style="background: var(--amber-soft); border-color: var(--amber);">
+                  <div class="param-row-label">
+                    <strong>Regulator</strong>
+                    Áp suất làm việc thiết kế
+                  </div>
+                  <div class="param-row-value" style="color: var(--amber)">32.6 bar</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top: 18px; padding: 14px 18px; background: var(--bg-tinted); border: 1px solid rgba(14, 165, 233, 0.2); border-radius: var(--radius-md); font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
+            <strong style="color: var(--primary);">Lưu ý nguyên lý:</strong>
+            Mỗi van Safety Shut Off có 02 chiều tác động (High &amp; Low). Khi áp suất vượt khỏi
+            dải [Low, High], van sẽ tự động đóng và phát tín hiệu báo về DCS. Nguyên lý dự phòng:
+            Line 1 (Main) ưu tiên làm việc; khi gặp sự cố, Line 2 (Backup) với setting áp suất
+            thấp hơn (32,6 bar so với 33,9 bar) sẽ tiếp quản, tạo ra "khoảng tử" áp suất an toàn.
+          </div>
+        </div>
+      </section>
+
+      <!-- =========================================
+           SLIDE 5 — Diễn biến sự cố (timeline)
+           ========================================= -->
+      <section class="slide" data-title="Diễn biến sự cố">
+        <div class="content">
+          <div class="slide-eyebrow"><span class="dot"></span> Mục 4 · Diễn biến</div>
+          <h2 class="slide-title">Diễn biến <span class="em">sự cố</span></h2>
+          <p class="slide-subtitle">
+            Trình tự thời gian các sự kiện xảy ra trong vòng 30 phút từ lệnh giảm tải
+            đến khi tổ máy được trả về khai thác.
+          </p>
+
+          <div class="card">
+            <div class="timeline">
+              <div class="timeline-item">
+                <div class="timeline-time">14:01</div>
+                <div class="timeline-event">
+                  Ca vận hành thực hiện <strong>giảm tải GT1/GT2 về 230/230 MW</strong> theo lệnh điều độ.
+                </div>
+              </div>
+              <div class="timeline-item warning">
+                <div class="timeline-time">14:05</div>
+                <div class="timeline-event">
+                  Áp suất Khí sau van điều áp tăng lên do giảm tải.
+                  <strong>Safety Valve HP Line 1 (Main) đóng</strong> trước, sau đó
+                  <strong>Safety Valve HP Line 2 (Backup) cũng đóng</strong> tiếp theo (khoảng 10 giây sau).
+                </div>
+              </div>
+              <div class="timeline-item danger">
+                <div class="timeline-time">14:05</div>
+                <div class="timeline-event">
+                  DCS cảnh báo dồn dập: <code style="font-family: var(--font-mono); font-size: 12px; background: var(--coral-soft); color: var(--coral); padding: 1px 6px; border-radius: 4px;">Safety Valve 1 HP Line 1 close</code>,
+                  <code style="font-family: var(--font-mono); font-size: 12px; background: var(--coral-soft); color: var(--coral); padding: 1px 6px; border-radius: 4px;">Press down HP reduction</code>,
+                  <code style="font-family: var(--font-mono); font-size: 12px; background: var(--coral-soft); color: var(--coral); padding: 1px 6px; border-radius: 4px;">21/22 Gas fuel supply pressure low</code>,
+                  <strong>GT1/GT2: Stop/Trip from TCP</strong>.
+                </div>
+              </div>
+              <div class="timeline-item danger">
+                <div class="timeline-time">14:06</div>
+                <div class="timeline-event">
+                  Generator Circuit Breaker GT1/GT2: <strong>Máy cắt 901, 902 mở</strong>.
+                  Tổ máy ST3 ngừng do liên động — <strong>máy cắt 533 mở</strong>.
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-time">14:20</div>
+                <div class="timeline-event">
+                  Nhà máy xác định nguyên nhân: <strong>Safety Valve HP Line 1 và Line 2 tự động đóng</strong>,
+                  dẫn đến áp suất nhiên liệu Gas giảm thấp dưới giới hạn cho phép.
+                </div>
+              </div>
+              <div class="timeline-item warning">
+                <div class="timeline-time">14:32</div>
+                <div class="timeline-event">
+                  Nhà máy thực hiện <strong>cài đặt lại giá trị bảo vệ Line 2</strong> và Reset
+                  để Line 2 sẵn sàng vận hành. Line 1 vẫn đang bất khả dụng.
+                </div>
+              </div>
+              <div class="timeline-item success">
+                <div class="timeline-time">14:36</div>
+                <div class="timeline-event">
+                  <strong>Báo trả tổ máy GT1/GT2 cho A0/NSMO khai thác</strong>.
+                  A0 yêu cầu ngừng dự phòng.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =========================================
+           SLIDE 6 — Kết quả kiểm tra van
+           ========================================= -->
+      <section class="slide" data-title="Kết quả kiểm tra van">
+        <div class="content">
+          <div class="slide-eyebrow"><span class="dot"></span> Mục 6 · Kiểm tra</div>
+          <h2 class="slide-title">Kết quả kiểm tra <span class="em">giá trị tác động</span> của van</h2>
+          <p class="slide-subtitle">
+            Sau sự cố, nhà máy thực hiện kiểm tra tình trạng hoạt động và giá trị tác động bảo vệ
+            của hai Safety Shut Off Valve. Kết quả cho thấy giá trị tác động đã <strong style="color: var(--coral);">bị trôi đáng kể</strong>
+            so với thiết kế, tiệm cận giá trị áp suất vận hành thực tế.
+          </p>
+
+          <!-- LINE 1 INSPECTION -->
+          <div class="card" style="margin-bottom: 18px;">
+            <div class="card-title">
+              <div class="card-icon coral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+              Safety Shut Off Valve · 29EKA24AA002 · HP Line 1 (Main)
+            </div>
+            <table class="insp-table">
+              <thead>
+                <tr>
+                  <th style="width: 18%">Chiều tác động</th>
+                  <th style="width: 18%">Thiết kế</th>
+                  <th style="width: 22%">Kiểm tra thực tế</th>
+                  <th>Ghi chú</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="label-cell">High</td>
+                  <td class="design-cell">36.3 bar</td>
+                  <td class="actual-cell">33.0 – 33.2 bar <span class="delta-pill">−3.1 bar</span></td>
+                  <td class="note-cell">Giá trị tác động thực tế <strong>thấp hơn thiết kế</strong> và <strong>tiệm cận giá trị vận hành của van điều áp</strong> (32,3 bar tại thời điểm sự cố)</td>
+                </tr>
+                <tr>
+                  <td class="label-cell">Low</td>
+                  <td class="design-cell">27.9 bar</td>
+                  <td class="actual-cell" style="color: var(--amber);">25.0 / 25.7 bar <span class="delta-pill" style="background: var(--amber-soft); color: var(--amber);">−2.7 bar</span></td>
+                  <td class="note-cell">Giá trị tác động thực tế thấp hơn cài đặt</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- LINE 2 INSPECTION -->
+          <div class="card">
+            <div class="card-title">
+              <div class="card-icon coral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+              Safety Shut Off Valve · 29EKA23AA002 · HP Line 2 (Backup)
+            </div>
+            <table class="insp-table">
+              <thead>
+                <tr>
+                  <th style="width: 18%">Chiều tác động</th>
+                  <th style="width: 18%">Thiết kế</th>
+                  <th style="width: 22%">Kiểm tra thực tế</th>
+                  <th>Ghi chú</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="label-cell">High</td>
+                  <td class="design-cell">37.3 bar</td>
+                  <td class="actual-cell" style="color: var(--amber);">41.0 bar <span class="delta-pill" style="background: var(--amber-soft); color: var(--amber);">+3.7 bar</span></td>
+                  <td class="note-cell">Giá trị tác động thực tế cao hơn thiết kế</td>
+                </tr>
+                <tr>
+                  <td class="label-cell">Low</td>
+                  <td class="design-cell">26.8 bar</td>
+                  <td class="actual-cell">30.8 bar <span class="delta-pill">+4.0 bar</span></td>
+                  <td class="note-cell">Giá trị tác động thực tế cao hơn cài đặt, <strong>rất gần với áp suất vận hành thực tế</strong></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- =========================================
+           SLIDE 7 — Phân tích nguyên nhân
+           ========================================= -->
+      <section class="slide" data-title="Phân tích nguyên nhân">
+        <div class="content">
+          <div class="slide-eyebrow"><span class="dot"></span> Mục 7 · Phân tích</div>
+          <h2 class="slide-title">Phân tích <span class="em">nguyên nhân</span> sự cố</h2>
+          <p class="slide-subtitle">
+            Trình tự logic dẫn đến trip GT1, GT2: từ trạng thái ổn định trước sự cố,
+            qua các tác động sai lệch của bảo vệ, đến khi mất hoàn toàn nhiên liệu Khí.
+          </p>
+
+          <div class="analysis-steps">
+
+            <div class="analysis-step info">
+              <div class="step-num">01</div>
+              <div class="step-body">
+                <div class="step-title">Trạng thái ổn định trước sự cố</div>
+                <div class="step-desc">
+                  Áp suất hệ thống Gas cung cấp đến GT1, GT2 đang duy trì ở
+                  <code>32.3 bar</code> với <strong>Line 1 (Main)</strong> đang vận hành chính
+                  và <strong>Line 2 (Backup)</strong> đang dự phòng (Redundant).
+                </div>
+              </div>
+            </div>
+
+            <div class="analysis-step info">
+              <div class="step-num">02</div>
+              <div class="step-body">
+                <div class="step-title">Lệnh giảm tải gây tăng áp</div>
+                <div class="step-desc">
+                  Lúc <code>14:01</code>, ca vận hành giảm tải theo lệnh điều độ. Khi các tổ máy
+                  giảm công suất, lưu lượng tiêu thụ Khí giảm xuống nên
+                  <span class="hl">áp suất Khí cấp sau van điều áp tăng lên</span>.
+                </div>
+              </div>
+            </div>
+
+            <div class="analysis-step crit">
+              <div class="step-num">03</div>
+              <div class="step-body">
+                <div class="step-title">Safety Valve Line 1 tác động sớm — Line 1 đóng</div>
+                <div class="step-desc">
+                  Khi áp suất Khí tăng lên, Safety Shut Off Valve HP <strong>Line 1 (Main)</strong>
+                  <span class="hl">tự động đóng</span> do bảo vệ áp suất cao tác động sớm —
+                  tác động ở <code>33.0 bar</code>, thấp hơn nhiều so với giá trị cài đặt
+                  <code>36.3 bar</code>. Áp suất Gas hệ thống tụt xuống.
+                </div>
+              </div>
+            </div>
+
+            <div class="analysis-step warn">
+              <div class="step-num">04</div>
+              <div class="step-body">
+                <div class="step-title">Backup vào việc nhưng phục hồi không kịp</div>
+                <div class="step-desc">
+                  Khi áp suất Gas giảm, van điều áp <strong>Backup Line 2</strong> đưa vào làm việc
+                  theo thiết kế. Tuy nhiên, do lưu lượng sử dụng Khí đang cao (công suất các
+                  tổ máy đang vận hành tải cao), <span class="hl">áp suất Khí sau van điều áp
+                  phục hồi không kịp</span>.
+                </div>
+              </div>
+            </div>
+
+            <div class="analysis-step crit">
+              <div class="step-num">05</div>
+              <div class="step-body">
+                <div class="step-title">Safety Valve Line 2 tác động sớm — Line 2 đóng</div>
+                <div class="step-desc">
+                  Khoảng 10 giây sau, Safety Shut Off Valve HP <strong>Line 2</strong>
+                  <span class="hl">tự động đóng</span> do bảo vệ áp suất thấp tác động sớm —
+                  tác động ở <code>30.8 bar</code>, cao hơn nhiều so với giá trị cài đặt
+                  <code>26.8 bar</code>.
+                </div>
+              </div>
+            </div>
+
+            <div class="analysis-step crit">
+              <div class="step-num">06</div>
+              <div class="step-body">
+                <div class="step-title">Mất hoàn toàn nhiên liệu Khí — GT1, GT2 trip</div>
+                <div class="step-desc">
+                  Vì <span class="hl">cả 02 Safety Valve HP đều đóng</span>, áp suất Gas mất hoàn toàn.
+                  Tổ máy GT1, GT2 bị bảo vệ áp suất nhiên liệu Gas thấp tác động → trip.
+                  ST3 ngừng theo do liên động khối kết hợp.
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- =========================================
+           SLIDE 8 — Đồ thị áp suất động (LIVE CHART)
+           ========================================= -->
+      <section class="slide" data-title="Đồ thị áp suất động">
+        <div class="content">
+          <div class="slide-eyebrow"><span class="dot"></span> Mục 8 · Mô phỏng</div>
+          <h2 class="slide-title">Diễn biến áp suất Gas — <span class="em">mô phỏng động</span></h2>
+          <p class="slide-subtitle">
+            Mô phỏng diễn biến áp suất Khí Gas sau van điều áp HP từ thời điểm bắt đầu giảm tải
+            (14:01) đến khi cả hai van Safety Shut Off đóng và tổ máy mất nhiên liệu (14:06).
+            Bấm <strong>Bắt đầu</strong> để chạy mô phỏng.
+          </p>
+
+          <div class="chart-shell">
+            <div class="chart-header">
+              <div class="chart-info">
+                <div class="chart-info-title">Áp suất Gas sau van điều áp HP</div>
+                <div class="chart-info-sub">Thời gian thực · Đơn vị bar · So sánh với giá trị tác động thực tế</div>
+              </div>
+              <div class="chart-controls">
+                <select class="speed-select" id="speedSelect">
+                  <option value="0.5">0.5x · Chậm</option>
+                  <option value="1" selected>1x · Bình thường</option>
+                  <option value="2">2x · Nhanh</option>
+                  <option value="4">4x · Rất nhanh</option>
+                </select>
+                <button class="ctrl-btn" id="resetBtn" title="Bắt đầu lại">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                  Reset
+                </button>
+                <button class="ctrl-btn primary" id="playBtn">
+                  <svg viewBox="0 0 24 24" fill="currentColor" id="playIcon"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                  <span id="playLabel">Bắt đầu</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="chart-canvas-wrap">
+              <canvas id="pressureChart"></canvas>
+            </div>
+
+            <!-- Live readout panel -->
+            <div class="readout-grid">
+              <div class="readout" id="ro-pressure">
+                <div class="readout-label"><span class="pulse"></span> Áp suất hiện tại</div>
+                <div class="readout-value"><span id="liveP">32.3</span><span class="readout-unit">bar</span></div>
+              </div>
+              <div class="readout" id="ro-time">
+                <div class="readout-label"><span class="pulse"></span> Thời gian mô phỏng</div>
+                <div class="readout-value"><span id="liveT">14:01:00</span></div>
+              </div>
+              <div class="readout" id="ro-line1">
+                <div class="readout-label"><span class="pulse"></span> Safety Valve HP Line 1</div>
+                <div class="readout-value" id="liveL1" style="font-size: 14px; font-weight: 600;">SẴN SÀNG</div>
+              </div>
+              <div class="readout" id="ro-line2">
+                <div class="readout-label"><span class="pulse"></span> Safety Valve HP Line 2</div>
+                <div class="readout-value" id="liveL2" style="font-size: 14px; font-weight: 600;">DỰ PHÒNG</div>
+              </div>
+            </div>
+
+            <!-- Event log -->
+            <div class="event-log" id="eventLog">
+              <div class="event-log-entry"><span class="ts">14:01:00</span><span class="text">Hệ thống ổn định · Áp suất làm việc 32.3 bar · Line 1 Main đang vận hành, Line 2 Backup dự phòng</span></div>
+            </div>
+          </div>
+
+          <div style="margin-top: 16px; padding: 12px 16px; background: var(--bg-tinted); border-radius: var(--radius-md); border: 1px solid rgba(14, 165, 233, 0.15); font-size: 12.5px; color: var(--text-secondary); line-height: 1.55;">
+            <strong style="color: var(--primary);">Diễn giải đồ thị:</strong>
+            Đường <strong style="color: var(--sky)">xanh dương</strong> là áp suất Gas thực tế.
+            <strong style="color: #DC2626">Đỏ nét đứt</strong> = giới hạn High thực tế <em>Line 1</em>;
+            <strong style="color: #D97706">vàng nét chấm</strong> = giới hạn High thiết kế <em>Line 1</em>.
+            <strong style="color: #7C3AED">Tím nét đứt</strong> = giới hạn Low thực tế <em>Line 2</em>;
+            <strong style="color: #059669">xanh lá nét chấm</strong> = giới hạn Low thiết kế <em>Line 2</em>.
+            Khi áp suất chạm giới hạn High của Line 1 → Line 1 đóng → Backup Line 2 vào làm việc nhưng không kịp
+            phục hồi → áp suất tụt chạm giới hạn Low Line 2 → Line 2 đóng → mất khí hoàn toàn.
+          </div>
+        </div>
+      </section>
+
+      <!-- =========================================
+           SLIDE 9 — Kết luận & kiến nghị
+           ========================================= -->
+      <section class="slide" data-title="Kết luận &amp; Kiến nghị">
+        <div class="content">
+          <div class="slide-eyebrow"><span class="dot"></span> Mục 8 · Kết luận</div>
+          <h2 class="slide-title">Kết luận và <span class="em">kiến nghị</span></h2>
+          <p class="slide-subtitle">
+            Đánh giá tổng kết nguyên nhân và đề xuất giải pháp khắc phục để phòng ngừa
+            sự cố tương tự trong thời gian tới.
+          </p>
+
+          <div class="summary-card">
+            <div class="ico">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px;"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div class="summary-title">Kết luận</div>
+            <div class="summary-text">
+              Đây là <strong>sự cố chủ quan do thiết bị</strong>: giá trị tác động bảo vệ của các
+              Safety Shut Off Valve bị trôi sau thời gian dài vận hành, dẫn đến van tác động không
+              đúng chế độ làm việc. <strong>Ca vận hành đã xử lý sự cố GT1, GT2 đúng Quy trình,
+              Quy phạm</strong>, xử lý nhanh và hiệu quả, khôi phục tổ máy chỉ sau 30 phút.
+            </div>
+          </div>
+
+          <div class="h-section">Kiến nghị giải pháp</div>
+
+          <div class="reco-list">
+            <div class="reco-item">
+              <div class="reco-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              </div>
+              <div class="reco-text">
+                <div class="reco-title">Kiểm tra, cân chỉnh định kỳ giá trị cài đặt bảo vệ</div>
+                <div class="reco-desc">
+                  Thực hiện kiểm tra và cân chỉnh giá trị cài đặt bảo vệ <strong>định kỳ hàng năm</strong>
+                  để kịp thời phát hiện sai lệch trôi giá trị, ngăn ngừa tác động sai chế độ.
+                </div>
+              </div>
+            </div>
+
+            <div class="reco-item">
+              <div class="reco-icon" style="background: linear-gradient(135deg, var(--amber-soft), rgba(217, 119, 6, 0.2)); color: var(--amber);">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              </div>
+              <div class="reco-text">
+                <div class="reco-title">Lắp đặt bổ sung đường ống &amp; van bypass cho thử nghiệm định kỳ</div>
+                <div class="reco-desc">
+                  Đề xuất lắp đặt <strong>đường ống và van bypass</strong> để thuận tiện thử nghiệm
+                  định kỳ bằng áp lực Gas hệ thống — thay thế phương pháp nạp khí Nitơ hiện nay
+                  (gặp khó khăn do thể tích hệ thống lớn và tiêu tốn nhiều Nitơ).
+                </div>
+              </div>
+            </div>
+
+            <div class="reco-item">
+              <div class="reco-icon" style="background: linear-gradient(135deg, var(--emerald-soft), rgba(4, 120, 87, 0.2)); color: var(--emerald);">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+              </div>
+              <div class="reco-text">
+                <div class="reco-title">Thay thế thiết bị hãng Francel đã ngưng sản xuất</div>
+                <div class="reco-desc">
+                  Hệ thống van điều áp Khí của hãng <strong>Francel đã vận hành hơn 20 năm</strong>,
+                  ngưng sản xuất từ năm 1999, gây khó khăn trong bảo trì sửa chữa và tìm vật tư
+                  thay thế. Đề xuất cho phép thay thế bằng thiết bị tương đương phổ biến trên thị trường.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top: 24px; text-align: center; padding: 20px; background: var(--bg-card); border: 1px solid var(--border-soft); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
+            <div style="font-family: var(--font-display); font-size: 13px; color: var(--text-muted); margin-bottom: 6px; letter-spacing: 0.5px; text-transform: uppercase;">Tổng Công ty Phát điện 3 kính báo cáo</div>
+            <div style="font-family: var(--font-display); font-size: 18px; font-weight: 700; color: var(--primary);">Tập đoàn Điện lực Việt Nam</div>
+            <div style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">Trân trọng./.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =========================================
+           SLIDE 10 — End
+           ========================================= -->
+      <section class="slide" data-title="Cảm ơn">
+        <div class="cover">
+          <div class="cover-decor"></div>
+          <div class="cover-content" style="text-align: center; margin: 0 auto;">
+            <div class="cover-label" style="text-align: center;">Hoàn tất bài trình bày</div>
+            <h1 class="cover-title" style="font-size: 64px;">
+              Cảm ơn <span class="em">quý vị</span><br>
+              đã theo dõi
+            </h1>
+            <p class="cover-subtitle" style="margin: 0 auto 32px; text-align: center;">
+              Báo cáo phân tích sự cố GT1, GT2 — NMĐ Phú Mỹ 2.2 ngày 16/05/2026<br>
+              Tổng Công ty Phát điện 3 · EVNGENCO3
+            </p>
+            <div style="display: inline-flex; gap: 16px; justify-content: center;">
+              <div style="padding: 14px 22px; background: rgba(255,255,255,0.7); border: 1px solid var(--border-soft); border-radius: var(--radius-md); backdrop-filter: blur(8px);">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Đính kèm</div>
+                <div style="font-size: 13.5px; color: var(--text-primary); line-height: 1.5;">
+                  Event &amp; Trend · Hình ảnh, sơ đồ<br>
+                  Giá trị setting · Biên bản kiểm tra PXSC EPS
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script>
+/* ================================================================
+   APP LOGIC — slide navigation, progress, keyboard
+   ================================================================ */
+(function() {
+  'use strict';
+
+  const slides = document.querySelectorAll('.slide');
+  const nav = document.getElementById('nav');
+  const progressBar = document.getElementById('progressBar');
+  const slideCurrent = document.getElementById('slideCurrent');
+  const slideTotal = document.getElementById('slideTotal');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+
+  let currentIndex = 0;
+  slideTotal.textContent = String(slides.length).padStart(2, '0');
+
+  // Build sidebar nav
+  slides.forEach((slide, i) => {
+    const title = slide.dataset.title || `Slide ${i + 1}`;
+    const item = document.createElement('div');
+    item.className = 'nav-item' + (i === 0 ? ' active' : '');
+    item.innerHTML = `
+      <span class="nav-num">${String(i + 1).padStart(2, '0')}</span>
+      <span class="nav-label">${title}</span>
+    `;
+    item.addEventListener('click', () => goTo(i));
+    nav.appendChild(item);
+  });
+
+  const navItems = document.querySelectorAll('.nav-item');
+
+  function goTo(index) {
+    if (index < 0 || index >= slides.length) return;
+
+    // Mark previous slide direction for animation
+    if (index < currentIndex) {
+      slides[currentIndex].classList.add('prev');
+    } else {
+      slides[currentIndex].classList.remove('prev');
+    }
+
+    slides[currentIndex].classList.remove('active');
+    navItems[currentIndex].classList.remove('active');
+
+    currentIndex = index;
+
+    slides[currentIndex].classList.add('active');
+    slides[currentIndex].classList.remove('prev');
+    navItems[currentIndex].classList.add('active');
+
+    // Update progress
+    const pct = ((currentIndex + 1) / slides.length) * 100;
+    progressBar.style.width = pct + '%';
+    slideCurrent.textContent = String(currentIndex + 1).padStart(2, '0');
+
+    // Scroll nav into view
+    navItems[currentIndex].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+
+    // Reset chart when entering slide 8 (chart slide, index 7)
+    if (currentIndex === 7) {
+      resetChart();
+    } else {
+      pauseChart();
+    }
+
+    // Scroll slide to top
+    slides[currentIndex].scrollTop = 0;
+  }
+
+  prevBtn.addEventListener('click', () => goTo(currentIndex - 1));
+  nextBtn.addEventListener('click', () => goTo(currentIndex + 1));
+
+  document.addEventListener('keydown', (e) => {
+    if (e.target.matches('input, textarea, select')) return;
+    if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') {
+      e.preventDefault();
+      goTo(currentIndex + 1);
+    } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+      e.preventDefault();
+      goTo(currentIndex - 1);
+    } else if (e.key === 'Home') {
+      e.preventDefault();
+      goTo(0);
+    } else if (e.key === 'End') {
+      e.preventDefault();
+      goTo(slides.length - 1);
+    }
+  });
+
+  /* ================================================================
+     PRESSURE CHART — Canvas animation
+     ================================================================
+     Mô phỏng diễn biến áp suất Khí Gas theo kịch bản sự cố thực tế:
+
+     Pha A (0-12s "thực"): Ổn định 32.3 bar trước sự cố
+     Pha B (12-25s): Giảm tải GT → áp suất tăng dần lên
+     Pha C (25-27s): Chạm High Line 1 actual (33.0 bar) → Line 1 đóng
+                     → áp suất rớt nhanh xuống vùng làm việc của backup
+     Pha D (27-38s): Backup Line 2 cố phục hồi nhưng GT đang tải cao,
+                     áp suất dao động/sụt
+     Pha E (38-40s): Chạm Low Line 2 actual (30.8 bar) → Line 2 đóng
+     Pha F (40-50s): Áp suất tụt thẳng về 0 (mất khí hoàn toàn)
+     Pha G (50-60s): Duy trì 0 bar — tổ máy đã trip
+
+     Trục X: thời gian mô phỏng (60s)
+     Trục Y: áp suất (0 - 45 bar)
+     ================================================================ */
+
+  const canvas = document.getElementById('pressureChart');
+  const ctx = canvas.getContext('2d');
+
+  // High-DPI
+  function setupCanvas() {
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.scale(dpr, dpr);
+    return { w: rect.width, h: rect.height };
+  }
+
+  // Chart config
+  const TOTAL_SIM_SECONDS = 60;  // total simulated duration
+  const PRESSURE_MIN = 15;
+  const PRESSURE_MAX = 45;
+  const PADDING = { top: 28, right: 160, bottom: 36, left: 60 };
+
+  // Reference values (bar)
+  const REF = {
+    regulatorLine1: 33.9,   // design
+    regulatorLine2: 32.6,   // design
+    workingPressure: 32.3,  // pre-incident
+    line1HighDesign: 36.3,
+    line1LowDesign: 27.9,
+    line2HighDesign: 37.3,
+    line2LowDesign: 26.8,
+    line1HighActual: 33.1,  // bị trôi xuống — gần áp vận hành
+    line1LowActual: 25.3,
+    line2HighActual: 41.0,
+    line2LowActual: 30.8,   // bị trôi lên — gần áp vận hành
+    slamShut1: 36.5,
+    slamShut2: 37.5
+  };
+
+  // Simulation state
+  let simTime = 0;          // 0 .. TOTAL_SIM_SECONDS
+  let lastFrameTime = 0;
+  let playing = false;
+  let speed = 1;
+  let dataPoints = [];      // [{t, p}]
+  let eventsFired = new Set();
+
+  // Phases — define the pressure curve mathematically
+  function getPressureAt(t) {
+    // Returns {pressure, lineState1, lineState2}
+    // lineState: 'normal'|'closing'|'closed'
+
+    let p = REF.workingPressure;
+    let l1 = 'normal';
+    let l2 = 'standby';
+
+    if (t < 12) {
+      // Phase A: stable
+      // Small natural fluctuation ±0.15 bar
+      p = REF.workingPressure + Math.sin(t * 1.2) * 0.12 + Math.cos(t * 2.3) * 0.06;
+      l1 = 'normal';
+      l2 = 'standby';
+
+    } else if (t < 25) {
+      // Phase B: gradual rise due to load reduction (14:01)
+      const phaseProgress = (t - 12) / 13; // 0..1 over 13s
+      // Easing curve — pressure rises in S-shape, accelerating then plateauing
+      const eased = phaseProgress * phaseProgress * (3 - 2 * phaseProgress);
+      p = REF.workingPressure + eased * (REF.line1HighActual - REF.workingPressure + 0.05)
+          + Math.sin(t * 1.5) * 0.08;
+      l1 = 'normal';
+      l2 = 'standby';
+
+    } else if (t < 26) {
+      // Phase C: hits Line 1 actual High limit → Line 1 closes fast
+      // Pressure drops sharply (within 1 second)
+      const phaseProgress = (t - 25) / 1;
+      const startP = REF.line1HighActual + 0.05;
+      // Drop down toward regulator setpoint of backup (32.6) area
+      const endP = 31.8;
+      // Exponential decay
+      p = endP + (startP - endP) * Math.exp(-5 * phaseProgress);
+      l1 = 'closed';
+      l2 = 'normal';
+
+    } else if (t < 38) {
+      // Phase D: Line 2 backup tries to recover
+      // But GT demand is high, pressure stabilizes lower then dips
+      // Simulating: backup brings pressure up but it slowly leaks down
+      const phaseProgress = (t - 26) / 12;
+
+      // First half: brief recovery toward Line 2 setpoint (32.6)
+      // Then progressive decay as demand outpaces supply recovery
+      let basePressure;
+      if (phaseProgress < 0.25) {
+        // Recovery phase: 31.8 → 32.2
+        const r = phaseProgress / 0.25;
+        basePressure = 31.8 + r * 0.4;
+      } else {
+        // Sliding decay phase: 32.2 → 30.85
+        const r = (phaseProgress - 0.25) / 0.75;
+        const eased = r * r * (3 - 2 * r);
+        basePressure = 32.2 - eased * 1.35;
+      }
+      p = basePressure + Math.sin(t * 1.8) * 0.12 + Math.cos(t * 3.1) * 0.07;
+      l1 = 'closed';
+      l2 = 'normal';
+
+    } else if (t < 39.5) {
+      // Phase E: hits Line 2 actual Low limit → Line 2 closes
+      // Sharp drop
+      const phaseProgress = (t - 38) / 1.5;
+      const startP = REF.line2LowActual - 0.05;
+      const endP = 0;
+      // Exponential decay to 0
+      p = endP + (startP - endP) * Math.exp(-3 * phaseProgress);
+      l1 = 'closed';
+      l2 = 'closed';
+
+    } else {
+      // Phase F+G: zero pressure, both valves closed
+      p = 0 + Math.max(0, Math.sin(t * 5) * 0.15 - 0.1) * Math.exp(-(t - 39.5) * 0.5);
+      if (p < 0) p = 0;
+      l1 = 'closed';
+      l2 = 'closed';
+    }
+
+    return { pressure: p, line1: l1, line2: l2 };
+  }
+
+  // Coordinate transforms
+  function tToX(t, w) {
+    return PADDING.left + (t / TOTAL_SIM_SECONDS) * (w - PADDING.left - PADDING.right);
+  }
+  function pToY(p, h) {
+    const pClamped = Math.max(PRESSURE_MIN, Math.min(PRESSURE_MAX, p));
+    return PADDING.top + (1 - (pClamped - PRESSURE_MIN) / (PRESSURE_MAX - PRESSURE_MIN)) *
+           (h - PADDING.top - PADDING.bottom);
+  }
+
+  // Format simulated wall-clock time (14:01:00 base)
+  function formatSimTime(t) {
+    const totalSec = Math.floor(t);
+    const baseSec = 14 * 3600 + 1 * 60 + 0; // 14:01:00
+    const cur = baseSec + Math.floor(t * (5 * 60 / TOTAL_SIM_SECONDS));
+    // Maps 60s of sim → 5 minutes of real wall clock (14:01 - 14:06)
+    const h = Math.floor(cur / 3600) % 24;
+    const m = Math.floor((cur % 3600) / 60);
+    const s = cur % 60;
+    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  }
+
+  // Draw functions
+  function drawGrid(w, h) {
+    ctx.save();
+    ctx.strokeStyle = 'rgba(22, 36, 58, 0.06)';
+    ctx.lineWidth = 1;
+    ctx.font = '10px "JetBrains Mono", monospace';
+    ctx.fillStyle = '#94A3B8';
+
+    // Horizontal gridlines & Y labels
+    for (let p = 15; p <= 45; p += 5) {
+      const y = pToY(p, h);
+      ctx.beginPath();
+      ctx.moveTo(PADDING.left, y);
+      ctx.lineTo(w - PADDING.right, y);
+      ctx.stroke();
+      ctx.textAlign = 'right';
+      ctx.fillText(p.toString(), PADDING.left - 8, y + 3);
+    }
+
+    // Vertical gridlines & X labels
+    for (let t = 0; t <= 60; t += 10) {
+      const x = tToX(t, w);
+      ctx.beginPath();
+      ctx.moveTo(x, PADDING.top);
+      ctx.lineTo(x, h - PADDING.bottom);
+      ctx.stroke();
+      ctx.textAlign = 'center';
+      ctx.fillText(formatSimTime(t).substring(0, 5), x, h - PADDING.bottom + 16);
+    }
+
+    // Axis labels
+    ctx.save();
+    ctx.translate(16, h / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.textAlign = 'center';
+    ctx.font = '11px "Be Vietnam Pro", sans-serif';
+    ctx.fillStyle = '#475569';
+    ctx.fillText('Áp suất (bar)', 0, 0);
+    ctx.restore();
+
+    ctx.fillStyle = '#475569';
+    ctx.font = '11px "Be Vietnam Pro", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Thời gian', w / 2, h - 6);
+
+    ctx.restore();
+  }
+
+  function drawLimitLine(w, h, p, color, label, dash, opacity) {
+    if (p > PRESSURE_MAX || p < PRESSURE_MIN) return;
+    const y = pToY(p, h);
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1.6;
+    ctx.globalAlpha = opacity;
+    ctx.setLineDash(dash);
+    ctx.beginPath();
+    ctx.moveTo(PADDING.left, y);
+    ctx.lineTo(w - PADDING.right, y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.globalAlpha = 1;
+
+    // Label on right
+    ctx.fillStyle = color;
+    ctx.font = '10px "JetBrains Mono", monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText(label, w - PADDING.right + 4, y + 3);
+
+    ctx.restore();
+  }
+
+  function drawRegulatorBand(w, h) {
+    // Show "working zone" band (around regulator setpoints)
+    const yTop = pToY(REF.regulatorLine1, h);
+    const yBottom = pToY(REF.regulatorLine2, h);
+    ctx.save();
+    ctx.fillStyle = 'rgba(14, 165, 233, 0.06)';
+    ctx.fillRect(PADDING.left, yTop, w - PADDING.left - PADDING.right, yBottom - yTop);
+    ctx.restore();
+  }
+
+  function drawPressureLine(w, h) {
+    if (dataPoints.length < 2) return;
+    ctx.save();
+
+    // Subtle fill under curve
+    const grad = ctx.createLinearGradient(0, PADDING.top, 0, h - PADDING.bottom);
+    grad.addColorStop(0, 'rgba(14, 165, 233, 0.18)');
+    grad.addColorStop(1, 'rgba(14, 165, 233, 0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.moveTo(tToX(dataPoints[0].t, w), h - PADDING.bottom);
+    for (const pt of dataPoints) {
+      ctx.lineTo(tToX(pt.t, w), pToY(pt.p, h));
+    }
+    ctx.lineTo(tToX(dataPoints[dataPoints.length - 1].t, w), h - PADDING.bottom);
+    ctx.closePath();
+    ctx.fill();
+
+    // Main line
+    ctx.strokeStyle = '#0EA5E9';
+    ctx.lineWidth = 2.4;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    for (let i = 0; i < dataPoints.length; i++) {
+      const x = tToX(dataPoints[i].t, w);
+      const y = pToY(dataPoints[i].p, h);
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+
+    // Current "head" marker
+    const last = dataPoints[dataPoints.length - 1];
+    const lx = tToX(last.t, w);
+    const ly = pToY(last.p, h);
+
+    ctx.fillStyle = 'rgba(14, 165, 233, 0.25)';
+    ctx.beginPath();
+    ctx.arc(lx, ly, 8, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#0EA5E9';
+    ctx.beginPath();
+    ctx.arc(lx, ly, 4, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = '#FFFFFF';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(lx, ly, 4, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+  function drawEventMarkers(w, h) {
+    // Draw vertical event markers at key moments
+    const events = [
+      { t: 12, label: 'Giảm tải (14:01)', color: '#0EA5E9' },
+      { t: 25, label: 'Line 1 đóng', color: '#DC2626' },
+      { t: 38, label: 'Line 2 đóng', color: '#DC2626' }
+    ];
+
+    ctx.save();
+    for (const ev of events) {
+      if (simTime < ev.t - 0.5) continue;
+      const x = tToX(ev.t, w);
+      ctx.strokeStyle = ev.color;
+      ctx.lineWidth = 1;
+      ctx.globalAlpha = 0.4;
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      ctx.moveTo(x, PADDING.top);
+      ctx.lineTo(x, h - PADDING.bottom);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Label badge
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = ev.color;
+      ctx.font = '9.5px "Be Vietnam Pro", sans-serif';
+      ctx.textAlign = 'center';
+      // Background pill
+      const tw = ctx.measureText(ev.label).width;
+      ctx.globalAlpha = 0.95;
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(x - tw / 2 - 5, PADDING.top - 14, tw + 10, 14);
+      ctx.strokeStyle = ev.color;
+      ctx.lineWidth = 1;
+      ctx.strokeRect(x - tw / 2 - 5, PADDING.top - 14, tw + 10, 14);
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = ev.color;
+      ctx.fillText(ev.label, x, PADDING.top - 3);
+    }
+    ctx.restore();
+  }
+
+  function render() {
+    const { w, h } = setupCanvas();
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    drawGrid(w, h);
+    drawRegulatorBand(w, h);
+
+    // Design limit lines — Line 1 amber, Line 2 emerald (dotted)
+    drawLimitLine(w, h, REF.line1HighDesign, '#D97706', `L1 High thiết kế (${REF.line1HighDesign})`, [2, 4], 0.6);
+    drawLimitLine(w, h, REF.line2LowDesign, '#059669', `L2 Low thiết kế (${REF.line2LowDesign})`, [2, 4], 0.6);
+
+    // Actual limit lines — Line 1 red, Line 2 purple (dashed)
+    drawLimitLine(w, h, REF.line1HighActual, '#DC2626', `L1 High thực tế (${REF.line1HighActual})`, [8, 4], 0.9);
+    drawLimitLine(w, h, REF.line2LowActual, '#7C3AED', `L2 Low thực tế (${REF.line2LowActual})`, [8, 4], 0.9);
+
+    // Regulator setpoints — Line 1 sky, Line 2 teal (faint)
+    drawLimitLine(w, h, REF.regulatorLine1, '#0EA5E9', `Reg. L1 (${REF.regulatorLine1})`, [1, 3], 0.35);
+    drawLimitLine(w, h, REF.regulatorLine2, '#0891B2', `Reg. L2 (${REF.regulatorLine2})`, [1, 3], 0.35);
+
+    drawEventMarkers(w, h);
+    drawPressureLine(w, h);
+
+    // Title above
+    ctx.save();
+    ctx.fillStyle = '#94A3B8';
+    ctx.font = '10px "JetBrains Mono", monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText(`t = ${simTime.toFixed(1)}s · mô phỏng`, PADDING.left, 14);
+    ctx.restore();
+  }
+
+  // UI elements
+  const liveP = document.getElementById('liveP');
+  const liveT = document.getElementById('liveT');
+  const liveL1 = document.getElementById('liveL1');
+  const liveL2 = document.getElementById('liveL2');
+  const roPressure = document.getElementById('ro-pressure');
+  const roTime = document.getElementById('ro-time');
+  const roLine1 = document.getElementById('ro-line1');
+  const roLine2 = document.getElementById('ro-line2');
+  const eventLog = document.getElementById('eventLog');
+  const playBtn = document.getElementById('playBtn');
+  const playIcon = document.getElementById('playIcon');
+  const playLabel = document.getElementById('playLabel');
+  const resetBtn = document.getElementById('resetBtn');
+  const speedSelect = document.getElementById('speedSelect');
+
+  function logEvent(message, type) {
+    const entry = document.createElement('div');
+    entry.className = 'event-log-entry' + (type ? ' ' + type : '');
+    const timestamp = formatSimTime(simTime);
+    entry.innerHTML = `<span class="ts">${timestamp}</span><span class="text">${message}</span>`;
+    eventLog.appendChild(entry);
+    eventLog.scrollTop = eventLog.scrollHeight;
+  }
+
+  function updateReadouts(state) {
+    liveP.textContent = state.pressure.toFixed(2);
+    liveT.textContent = formatSimTime(simTime);
+
+    // Always active
+    roPressure.classList.add('active');
+    roTime.classList.add('active');
+
+    // Line 1 status
+    if (state.line1 === 'normal') {
+      liveL1.textContent = 'ĐANG VẬN HÀNH';
+      roLine1.classList.add('active');
+      roLine1.classList.remove('alarm');
+    } else if (state.line1 === 'closed') {
+      liveL1.textContent = 'ĐÃ ĐÓNG';
+      roLine1.classList.remove('active');
+      roLine1.classList.add('alarm');
+    } else {
+      liveL1.textContent = 'SẴN SÀNG';
+      roLine1.classList.remove('active', 'alarm');
+    }
+
+    // Line 2 status
+    if (state.line2 === 'normal') {
+      liveL2.textContent = 'ĐANG VẬN HÀNH';
+      roLine2.classList.add('active');
+      roLine2.classList.remove('alarm');
+    } else if (state.line2 === 'closed') {
+      liveL2.textContent = 'ĐÃ ĐÓNG';
+      roLine2.classList.remove('active');
+      roLine2.classList.add('alarm');
+    } else if (state.line2 === 'standby') {
+      liveL2.textContent = 'DỰ PHÒNG';
+      roLine2.classList.remove('alarm', 'active');
+    }
+
+    // Trigger events at key thresholds
+    if (simTime >= 12 && !eventsFired.has('loadReduction')) {
+      eventsFired.add('loadReduction');
+      logEvent('Lệnh giảm tải GT1/GT2 về 230/230 MW · Áp suất Khí bắt đầu tăng do nhu cầu giảm', 'warn');
+    }
+    if (simTime >= 25 && !eventsFired.has('line1Close')) {
+      eventsFired.add('line1Close');
+      logEvent('⚠ Safety Valve HP Line 1 ĐÓNG · Tác động sớm ở 33.0 bar (thiết kế 36.3) · Backup Line 2 tiếp quản', 'danger');
+    }
+    if (simTime >= 26.5 && !eventsFired.has('backupActive')) {
+      eventsFired.add('backupActive');
+      logEvent('Backup Line 2 vào việc, áp suất phục hồi không kịp do GT đang tải cao', 'warn');
+    }
+    if (simTime >= 38 && !eventsFired.has('line2Close')) {
+      eventsFired.add('line2Close');
+      logEvent('⚠ Safety Valve HP Line 2 ĐÓNG · Tác động sớm ở 30.8 bar (thiết kế 26.8) · Mất nguồn Khí', 'danger');
+    }
+    if (simTime >= 41 && !eventsFired.has('trip')) {
+      eventsFired.add('trip');
+      logEvent('🛑 GT1/GT2 TRIP · Bảo vệ áp suất nhiên liệu Gas thấp tác động · Máy cắt 901, 902 mở · ST3 ngừng theo liên động', 'danger');
+    }
+  }
+
+  function tick(timestamp) {
+    if (!playing) return;
+    if (lastFrameTime === 0) lastFrameTime = timestamp;
+    const deltaMs = timestamp - lastFrameTime;
+    lastFrameTime = timestamp;
+
+    // Advance sim time
+    simTime += (deltaMs / 1000) * speed;
+
+    if (simTime >= TOTAL_SIM_SECONDS) {
+      simTime = TOTAL_SIM_SECONDS;
+      playing = false;
+      playIcon.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"/>';
+      playLabel.textContent = 'Chạy lại';
+    }
+
+    // Sample point
+    const state = getPressureAt(simTime);
+    dataPoints.push({ t: simTime, p: state.pressure });
+
+    // Keep at reasonable resolution
+    if (dataPoints.length > 1500) {
+      dataPoints = dataPoints.filter((_, i) => i % 2 === 0);
+    }
+
+    updateReadouts(state);
+    render();
+
+    if (playing) requestAnimationFrame(tick);
+  }
+
+  function startChart() {
+    if (simTime >= TOTAL_SIM_SECONDS) {
+      resetChart();
+    }
+    playing = true;
+    lastFrameTime = 0;
+    playIcon.innerHTML = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
+    playLabel.textContent = 'Tạm dừng';
+    requestAnimationFrame(tick);
+  }
+
+  function pauseChart() {
+    playing = false;
+    playIcon.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"/>';
+    playLabel.textContent = simTime > 0 ? 'Tiếp tục' : 'Bắt đầu';
+  }
+
+  function resetChart() {
+    playing = false;
+    simTime = 0;
+    lastFrameTime = 0;
+    dataPoints = [{ t: 0, p: REF.workingPressure }];
+    eventsFired.clear();
+
+    // Reset UI
+    playIcon.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"/>';
+    playLabel.textContent = 'Bắt đầu';
+    liveP.textContent = REF.workingPressure.toFixed(2);
+    liveT.textContent = '14:01:00';
+    liveL1.textContent = 'SẴN SÀNG';
+    liveL2.textContent = 'DỰ PHÒNG';
+    roPressure.classList.remove('alarm');
+    roLine1.classList.remove('active', 'alarm');
+    roLine2.classList.remove('active', 'alarm');
+
+    eventLog.innerHTML = '<div class="event-log-entry"><span class="ts">14:01:00</span><span class="text">Hệ thống ổn định · Áp suất làm việc 32.3 bar · Line 1 Main đang vận hành, Line 2 Backup dự phòng</span></div>';
+
+    render();
+  }
+
+  playBtn.addEventListener('click', () => {
+    if (playing) pauseChart();
+    else startChart();
+  });
+
+  resetBtn.addEventListener('click', () => {
+    resetChart();
+  });
+
+  speedSelect.addEventListener('change', (e) => {
+    speed = parseFloat(e.target.value);
+  });
+
+  // Resize handling
+  window.addEventListener('resize', () => {
+    if (currentIndex === 7) render();
+  });
+
+  // Initial render after a short delay (canvas needs to be visible)
+  setTimeout(() => {
+    resetChart();
+  }, 250);
+
+  // Touch swipe navigation
+  let touchStartX = 0;
+  let touchStartY = 0;
+  document.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].clientX;
+    touchStartY = e.changedTouches[0].clientY;
+  }, { passive: true });
+  document.addEventListener('touchend', (e) => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    const dy = e.changedTouches[0].clientY - touchStartY;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
+      if (dx < 0) goTo(currentIndex + 1);
+      else goTo(currentIndex - 1);
+    }
+  }, { passive: true });
+
+})();
+</script>
+
+</body>
+</html>
