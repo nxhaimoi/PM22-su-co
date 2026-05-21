@@ -1014,6 +1014,68 @@
     margin-left: 6px;
   }
 
+  /* Work photo collection */
+  .work-photo-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    margin-top: 22px;
+  }
+
+  .work-photo-card {
+    margin: 0;
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .work-photo-frame {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    background:
+      linear-gradient(135deg, rgba(14, 165, 233, 0.08), rgba(217, 119, 6, 0.08)),
+      var(--bg-soft);
+    border-bottom: 1px solid var(--border-soft);
+  }
+
+  .work-photo-frame img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+  }
+
+  .work-photo-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+
+  .work-photo-caption {
+    padding: 12px 14px 14px;
+    font-size: 12.5px;
+    line-height: 1.45;
+    color: var(--text-secondary);
+  }
+
+  .work-photo-caption strong {
+    display: block;
+    margin-bottom: 3px;
+    font-family: var(--font-display);
+    font-size: 13.5px;
+    color: var(--text-primary);
+  }
+
   /* ============================================================
      CHART — DYNAMIC PRESSURE VISUALIZATION
      ============================================================ */
@@ -1451,6 +1513,7 @@
     .cover-stat-value { font-size: 18px; }
     .grid-2 { grid-template-columns: 1fr; }
     .grid-3 { grid-template-columns: 1fr; }
+    .work-photo-grid { grid-template-columns: 1fr; }
     .unit-grid { grid-template-columns: 1fr; }
     .param-grid { grid-template-columns: 1fr; }
     .readout-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -1527,7 +1590,7 @@
       </div>
       <div class="topbar-actions">
         <div class="slide-counter">
-          <span class="current" id="slideCurrent">01</span> / <span id="slideTotal">10</span>
+          <span class="current" id="slideCurrent">01</span> / <span id="slideTotal">11</span>
         </div>
         <div class="nav-arrows">
           <button class="nav-btn" id="prevBtn" title="Trang trước (←)">
@@ -2147,11 +2210,93 @@
       </section>
 
       <!-- =========================================
-           SLIDE 7 — Phân tích nguyên nhân
+           SLIDE 7 — Hình ảnh công tác
+           ========================================= -->
+      <section class="slide" data-title="Hình ảnh công tác">
+        <div class="content">
+          <div class="slide-eyebrow"><span class="dot"></span> Mục 7 · Hình ảnh hiện trường</div>
+          <h2 class="slide-title">Hình ảnh <span class="em">công tác</span> và kiểm tra thiết bị</h2>
+          <p class="slide-subtitle">
+            Khu vực dành cho bộ ảnh ghi nhận trong quá trình kiểm tra, thao tác và xử lý sự cố.
+            Khi bổ sung ảnh, thay phần placeholder trong từng khung bằng thẻ ảnh và cập nhật caption tương ứng.
+          </p>
+
+          <div class="work-photo-grid" aria-label="Bộ sưu tập hình ảnh công tác">
+            <figure class="work-photo-card">
+              <div class="work-photo-frame">
+                <!-- Thay placeholder bằng: <img src="images/cong-tac/ten-anh-01.jpg" alt="Mô tả ảnh 01"> -->
+                <div class="work-photo-placeholder">Ảnh 01</div>
+              </div>
+              <figcaption class="work-photo-caption">
+                <strong>Kiểm tra cụm van điều áp</strong>
+                Caption mô tả nội dung ảnh, vị trí thiết bị, thời điểm hoặc hạng mục công tác.
+              </figcaption>
+            </figure>
+
+            <figure class="work-photo-card">
+              <div class="work-photo-frame">
+                <!-- Thay placeholder bằng: <img src="images/cong-tac/ten-anh-02.jpg" alt="Mô tả ảnh 02"> -->
+                <div class="work-photo-placeholder">Ảnh 02</div>
+              </div>
+              <figcaption class="work-photo-caption">
+                <strong>Thao tác tại hiện trường</strong>
+                Caption mô tả thao tác, nhân sự/đơn vị thực hiện hoặc tình trạng ghi nhận.
+              </figcaption>
+            </figure>
+
+            <figure class="work-photo-card">
+              <div class="work-photo-frame">
+                <!-- Thay placeholder bằng: <img src="images/cong-tac/ten-anh-03.jpg" alt="Mô tả ảnh 03"> -->
+                <div class="work-photo-placeholder">Ảnh 03</div>
+              </div>
+              <figcaption class="work-photo-caption">
+                <strong>Giá trị setting/kiểm tra</strong>
+                Caption ghi rõ giá trị quan sát, kết quả đo hoặc nội dung biên bản liên quan.
+              </figcaption>
+            </figure>
+
+            <figure class="work-photo-card">
+              <div class="work-photo-frame">
+                <!-- Thay placeholder bằng: <img src="images/cong-tac/ten-anh-04.jpg" alt="Mô tả ảnh 04"> -->
+                <div class="work-photo-placeholder">Ảnh 04</div>
+              </div>
+              <figcaption class="work-photo-caption">
+                <strong>Tình trạng thiết bị</strong>
+                Caption mô tả tình trạng bên ngoài, tem nhãn, vị trí lắp đặt hoặc điểm cần lưu ý.
+              </figcaption>
+            </figure>
+
+            <figure class="work-photo-card">
+              <div class="work-photo-frame">
+                <!-- Thay placeholder bằng: <img src="images/cong-tac/ten-anh-05.jpg" alt="Mô tả ảnh 05"> -->
+                <div class="work-photo-placeholder">Ảnh 05</div>
+              </div>
+              <figcaption class="work-photo-caption">
+                <strong>Biên bản/thiết bị đo</strong>
+                Caption tóm tắt nội dung tài liệu, thiết bị đo hoặc kết quả xác nhận.
+              </figcaption>
+            </figure>
+
+            <figure class="work-photo-card">
+              <div class="work-photo-frame">
+                <!-- Thay placeholder bằng: <img src="images/cong-tac/ten-anh-06.jpg" alt="Mô tả ảnh 06"> -->
+                <div class="work-photo-placeholder">Ảnh 06</div>
+              </div>
+              <figcaption class="work-photo-caption">
+                <strong>Hình ảnh bổ sung</strong>
+                Caption cho ảnh bổ sung trong quá trình kiểm tra hoặc khắc phục sau sự cố.
+              </figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <!-- =========================================
+           SLIDE 8 — Phân tích nguyên nhân
            ========================================= -->
       <section class="slide" data-title="Phân tích nguyên nhân">
         <div class="content">
-          <div class="slide-eyebrow"><span class="dot"></span> Mục 7 · Phân tích</div>
+          <div class="slide-eyebrow"><span class="dot"></span> Mục 8 · Phân tích</div>
           <h2 class="slide-title">Phân tích <span class="em">nguyên nhân</span> sự cố</h2>
           <p class="slide-subtitle">
             Trình tự logic dẫn đến trip GT1, GT2: từ trạng thái ổn định trước sự cố,
@@ -2240,11 +2385,11 @@
       </section>
 
       <!-- =========================================
-           SLIDE 8 — Đồ thị áp suất động (LIVE CHART)
+           SLIDE 9 — Đồ thị áp suất động (LIVE CHART)
            ========================================= -->
       <section class="slide" data-title="Đồ thị áp suất động">
         <div class="content">
-          <div class="slide-eyebrow"><span class="dot"></span> Mục 8 · Mô phỏng</div>
+          <div class="slide-eyebrow"><span class="dot"></span> Mục 9 · Mô phỏng</div>
           <h2 class="slide-title">Diễn biến áp suất Gas — <span class="em">mô phỏng động</span></h2>
           <p class="slide-subtitle">
             Mô phỏng diễn biến áp suất Khí Gas sau van điều áp HP từ thời điểm bắt đầu giảm tải
@@ -2320,11 +2465,11 @@
       </section>
 
       <!-- =========================================
-           SLIDE 9 — Kết luận & kiến nghị
+           SLIDE 10 — Kết luận & kiến nghị
            ========================================= -->
       <section class="slide" data-title="Kết luận &amp; Kiến nghị">
         <div class="content">
-          <div class="slide-eyebrow"><span class="dot"></span> Mục 8 · Kết luận</div>
+          <div class="slide-eyebrow"><span class="dot"></span> Mục 10 · Kết luận</div>
           <h2 class="slide-title">Kết luận và <span class="em">kiến nghị</span></h2>
           <p class="slide-subtitle">
             Đánh giá tổng kết nguyên nhân và đề xuất giải pháp khắc phục để phòng ngừa
@@ -2398,7 +2543,7 @@
       </section>
 
       <!-- =========================================
-           SLIDE 10 — End
+           SLIDE 11 — End
            ========================================= -->
       <section class="slide" data-title="Cảm ơn">
         <div class="cover">
