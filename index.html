@@ -2542,8 +2542,8 @@
               <div class="chart-controls">
                 <select class="speed-select" id="speedSelect">
                   <option value="0.5">0.5x · Chậm</option>
-                  <option value="1" selected>1x · Bình thường</option>
-                  <option value="2">2x · Nhanh</option>
+                  <option value="1">1x · Bình thường</option>
+                  <option value="2" selected>2x · Nhanh</option>
                   <option value="4">4x · Rất nhanh</option>
                 </select>
                 <button class="ctrl-btn" id="resetBtn" title="Bắt đầu lại">
@@ -2877,7 +2877,7 @@
   let simTime = 0;          // 0 .. TOTAL_SIM_SECONDS
   let lastFrameTime = 0;
   let playing = false;
-  let speed = 1;
+  let speed = 2;
   let dataPoints = [];      // [{t, p}]
   let eventsFired = new Set();
 
