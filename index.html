@@ -475,10 +475,10 @@
 
   .cover-title {
     font-family: var(--font-display);
-    font-size: 56px;
-    font-weight: 800;
-    letter-spacing: -1.8px;
-    line-height: 1.05;
+    font-size: 50px;
+    font-weight: 700;
+    letter-spacing: 0;
+    line-height: 1.14;
     color: var(--text-primary);
     margin-bottom: 18px;
   }
@@ -1084,46 +1084,48 @@
   }
 
   .work-photo-caption {
-    padding: 14px 18px 16px;
-    font-size: 13px;
-    line-height: 1.45;
-    color: var(--text-secondary);
-  }
-
-  .work-photo-caption strong {
-    display: block;
-    margin-bottom: 3px;
+    padding: 13px 18px 15px;
     font-family: var(--font-display);
-    font-size: 13.5px;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.35;
     color: var(--text-primary);
   }
 
   .work-photo-nav {
+    position: absolute;
+    left: 14px;
+    right: 14px;
+    top: 44%;
+    z-index: 3;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 14px;
-    margin-top: 14px;
+    transform: translateY(-50%);
+    pointer-events: none;
   }
 
   .work-photo-btn {
-    width: 38px;
-    height: 38px;
+    width: 44px;
+    height: 44px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.88);
+    border: 1px solid rgba(15, 76, 129, 0.18);
     border-radius: 50%;
-    color: var(--text-secondary);
+    color: var(--primary);
     cursor: pointer;
+    pointer-events: auto;
     transition: all 0.15s;
+    box-shadow: var(--shadow-sm);
+    backdrop-filter: blur(8px);
   }
 
   .work-photo-btn:hover {
     color: var(--sky);
     border-color: var(--sky);
-    transform: translateY(-1px);
+    transform: scale(1.04);
   }
 
   .work-photo-btn svg {
@@ -1132,11 +1134,15 @@
   }
 
   .work-photo-dots {
+    position: absolute;
+    left: 50%;
+    bottom: -32px;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    flex: 1;
+    transform: translateX(-50%);
+    pointer-events: auto;
   }
 
   .work-photo-dot {
@@ -1575,7 +1581,7 @@
   @media (max-width: 1100px) {
     .app { grid-template-columns: 240px 1fr; }
     .slide { padding: 28px 36px; }
-    .cover-title { font-size: 42px; }
+    .cover-title { font-size: 38px; }
   }
 
   @media (max-width: 820px) {
@@ -1587,13 +1593,13 @@
     .topbar { padding: 0 16px; height: 50px; }
     .topbar-title { font-size: 11.5px; }
     .cover { padding: 0 18px; }
-    .cover-title { font-size: 34px; letter-spacing: -1px; }
+    .cover-title { font-size: 30px; letter-spacing: 0; }
     .cover-subtitle { font-size: 14px; margin-bottom: 24px; }
     .cover-stats { grid-template-columns: 1fr 1fr; gap: 10px; }
     .cover-stat-value { font-size: 18px; }
     .grid-2 { grid-template-columns: 1fr; }
     .grid-3 { grid-template-columns: 1fr; }
-    .work-photo-nav { margin-top: 10px; }
+    .work-photo-nav { left: 10px; right: 10px; }
     .unit-grid { grid-template-columns: 1fr; }
     .param-grid { grid-template-columns: 1fr; }
     .readout-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -1621,7 +1627,7 @@
   @media (max-width: 480px) {
     .slide { padding: 16px 14px 20px; }
     .slide-title { font-size: 19px; }
-    .cover-title { font-size: 26px; }
+    .cover-title { font-size: 24px; }
     .cover-stats { grid-template-columns: 1fr 1fr; }
     .readout-grid { grid-template-columns: 1fr 1fr; }
     .chart-canvas-wrap { height: 200px; }
@@ -1670,7 +1676,7 @@
       </div>
       <div class="topbar-actions">
         <div class="slide-counter">
-          <span class="current" id="slideCurrent">01</span> / <span id="slideTotal">11</span>
+          <span class="current" id="slideCurrent">01</span> / <span id="slideTotal">10</span>
         </div>
         <div class="nav-arrows">
           <button class="nav-btn" id="prevBtn" title="Trang trước (←)">
@@ -2307,50 +2313,35 @@
                   <div class="work-photo-frame">
                     <img src="images/cong-tac/Hình ảnh cụm van.jpg" alt="Hình ảnh cụm van" loading="lazy">
                   </div>
-                  <figcaption class="work-photo-caption">
-                    <strong>Hình ảnh cụm van</strong>
-                    Hình ảnh cụm van.
-                  </figcaption>
+                  <figcaption class="work-photo-caption">Hình ảnh cụm van</figcaption>
                 </figure>
 
                 <figure class="work-photo-card">
                   <div class="work-photo-frame">
                     <img src="images/cong-tac/kiem tra hoạt dong cac van.jpg" alt="Kiểm tra hoạt động các van" loading="lazy">
                   </div>
-                  <figcaption class="work-photo-caption">
-                    <strong>Kiểm tra hoạt động các van</strong>
-                    Kiểm tra hoạt động các van.
-                  </figcaption>
+                  <figcaption class="work-photo-caption">Kiểm tra hoạt động các van</figcaption>
                 </figure>
 
                 <figure class="work-photo-card">
                   <div class="work-photo-frame">
                     <img src="images/cong-tac/cơ cấu tác động.jpg" alt="Cơ cấu tác động" loading="lazy">
                   </div>
-                  <figcaption class="work-photo-caption">
-                    <strong>Cơ cấu tác động</strong>
-                    Cơ cấu tác động.
-                  </figcaption>
+                  <figcaption class="work-photo-caption">Cơ cấu tác động</figcaption>
                 </figure>
 
                 <figure class="work-photo-card">
                   <div class="work-photo-frame">
                     <img src="images/cong-tac/Test record Shutoff valve Main.jpg" alt="Test record Shutoff valve Main" loading="lazy">
                   </div>
-                  <figcaption class="work-photo-caption">
-                    <strong>Test record Shutoff valve Main</strong>
-                    Test record Shutoff valve Main.
-                  </figcaption>
+                  <figcaption class="work-photo-caption">Test record Shutoff valve Main</figcaption>
                 </figure>
 
                 <figure class="work-photo-card">
                   <div class="work-photo-frame">
                     <img src="images/cong-tac/Test record Shutoff valve Backup.jpg" alt="Test record Shutoff valve Backup" loading="lazy">
                   </div>
-                  <figcaption class="work-photo-caption">
-                    <strong>Test record Shutoff valve Backup</strong>
-                    Test record Shutoff valve Backup.
-                  </figcaption>
+                  <figcaption class="work-photo-caption">Test record Shutoff valve Backup</figcaption>
                 </figure>
               </div>
             </div>
@@ -2679,40 +2670,9 @@
             </div>
           </div>
 
-          <div style="margin-top: 24px; text-align: center; padding: 20px; background: var(--bg-card); border: 1px solid var(--border-soft); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
-            <div style="font-family: var(--font-display); font-size: 13px; color: var(--text-muted); margin-bottom: 6px; letter-spacing: 0.5px; text-transform: uppercase;">Tổng Công ty Phát điện 3 kính báo cáo</div>
-            <div style="font-family: var(--font-display); font-size: 18px; font-weight: 700; color: var(--primary);">Tập đoàn Điện lực Việt Nam</div>
-            <div style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">Trân trọng./.</div>
-          </div>
-        </div>
-      </section>
-
-      <!-- =========================================
-           SLIDE 11 — End
-           ========================================= -->
-      <section class="slide" data-title="Cảm ơn">
-        <div class="cover">
-          <div class="cover-decor"></div>
-          <div class="cover-content" style="text-align: center; margin: 0 auto;">
-            <div class="cover-label" style="text-align: center;">Hoàn tất bài trình bày</div>
-            <h1 class="cover-title" style="font-size: 64px;">
-              Cảm ơn <span class="em">quý vị</span><br>
-              đã theo dõi
-            </h1>
-            <p class="cover-subtitle" style="margin: 0 auto 32px; text-align: center;">
-              Báo cáo phân tích sự cố GT1, GT2 — NMĐ Phú Mỹ 2.2 ngày 16/05/2026<br>
-              Tổng Công ty Phát điện 3 · EVNGENCO3
-            </p>
-            <div style="display: inline-flex; gap: 16px; justify-content: center;">
-              <div style="padding: 14px 22px; background: rgba(255,255,255,0.7); border: 1px solid var(--border-soft); border-radius: var(--radius-md); backdrop-filter: blur(8px);">
-                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Đính kèm</div>
-                <div style="font-size: 13.5px; color: var(--text-primary); line-height: 1.5;">
-                  Event &amp; Trend · Hình ảnh, sơ đồ<br>
-                  Giá trị setting · Biên bản kiểm tra PXSC EPS
-                </div>
-              </div>
-            </div>
-          </div>
+          <p style="margin-top: 22px; font-size: 14px; color: var(--text-secondary); line-height: 1.6;">
+            Tổng Công ty Phát điện 3 kính báo cáo Tập đoàn Điện lực Việt Nam. Trân trọng./.
+          </p>
         </div>
       </section>
 
